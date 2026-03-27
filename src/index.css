@@ -10,10 +10,31 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 14px;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   color: #111827;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for Spreadsheet Feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
 }
 
 @media (min-width: 768px) {

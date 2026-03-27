@@ -54,52 +54,52 @@ export default function CategoryDetailPage() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-white">
       {/* Header & Tabs */}
-      <div className="px-4 md:px-6 pt-6  border-gray-100 bg-white sticky top-0 z-30">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
+      <div className="px-4 md:px-6 pt-4 md:pt-6 bg-white sticky top-0 z-30">
+        {/* Breadcrumb - Hidden on very small screens, compact on mobile */}
+        <div className="hidden sm:flex items-center gap-1.5 text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 md:mb-6">
           <button onClick={() => navigate('/events')} className="hover:text-indigo-600 transition-colors flex items-center gap-1">
             <Home className="w-3 h-3" /> Events
           </button>
           <ChevronRight className="w-3 h-3" />
-          <button onClick={() => navigate(`/events/${eventId}/dashboard`)} className="hover:text-indigo-600 transition-colors">
+          <button onClick={() => navigate(`/events/${eventId}/dashboard`)} className="hover:text-indigo-600 transition-colors truncate max-w-[100px] md:max-w-none">
             {event?.title}
           </button>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-gray-900">{category?.name}</span>
+          <span className="text-gray-900 truncate">{category?.name}</span>
         </div>
 
-        {/* Title Section */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        {/* Title Section - Responsive sizing */}
+        <div className="flex items-center justify-between mb-4 md:mb-8">
+          <div className="flex items-center gap-3 md:gap-4">
             <div
-              className="w-14 h-14 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-sm border"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-2xl md:rounded-3xl flex items-center justify-center flex-shrink-0 shadow-sm border"
               style={{ backgroundColor: `${category?.color}10`, color: category?.color, borderColor: `${category?.color}20` }}
             >
-              <Users className="w-7 h-7" />
+              <Users className="w-5 h-5 md:w-7 md:h-7" />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-gray-900 tracking-tight">{category?.name}</h1>
-              <div className="flex items-center gap-2 mt-1 text-sm font-medium text-gray-400">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{event?.title}</span>
+              <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight">{category?.name}</h1>
+              <div className="flex items-center gap-2 mt-0.5 md:mt-1 text-[11px] md:text-sm font-medium text-gray-400">
+                <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <span className="truncate max-w-[120px] md:max-w-none">{event?.title}</span>
               </div>
             </div>
           </div>
 
           {/* Persistent Action Bar in Header */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setIsToolbarVisible(!isToolbarVisible)}
               className={clsx(
-                "flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all font-bold text-sm",
-                isToolbarVisible
-                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 shadow-sm"
+                "flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl md:rounded-2xl border transition-all font-bold text-[11px] md:text-sm shadow-sm",
+                isToolbarVisible 
+                  ? "bg-indigo-50 border-indigo-100 text-indigo-700" 
                   : "bg-white border-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
               )}
             >
-
-              <span>{isToolbarVisible ? "Hide Tools" : "Show Tools"}</span>
-              {isToolbarVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              <span className="hidden xs:inline">{isToolbarVisible ? "Hide Tools" : "Show Tools"}</span>
+              <span className="xs:hidden">{isToolbarVisible ? "Hide" : "Tools"}</span>
+              {isToolbarVisible ? <ChevronUp className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <ChevronDown className="w-3.5 h-3.5 md:w-4 md:h-4" />}
             </button>
           </div>
         </div>

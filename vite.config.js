@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      devOptions: { enabled: false },
+      devOptions: { enabled: true },
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: {
         name: 'InviteTracker',
