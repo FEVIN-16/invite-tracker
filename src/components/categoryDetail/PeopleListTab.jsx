@@ -1,0 +1,293 @@
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
+import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
+import { getColumnsByCategory } from '../../db/columnsDb';
+import { useUIStore } from '../../store/uiStore';
+import { Button } from '../ui/Button';
+import { EmptyState } from '../ui/EmptyState';
+import { Spinner } from '../ui/Spinner';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { PeopleTable } from '../people/PeopleTable';
+import { PeopleFilters } from '../people/PeopleFilters';
+import { PersonModal } from '../people/PersonModal';
+import { ImportModal } from '../people/ImportModal';
+import { exportToExcel } from '../../utils/excel';
+
+export function PeopleListTab({ eventId, categoryId }) {
+  const { addToast } = useUIStore();
+  const [people, setPeople] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [nameWidth, setNameWidth] = useState(180);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({});
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+
+  const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState(null);
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+
+  async function fetchData() {
+    try {
+      const [dbCols, guests] = await Promise.all([
+        getColumnsByCategory(categoryId),
+        getPeopleByCategory(categoryId)
+      ]);
+      setColumns(dbCols);
+      setPeople(guests.sort((a, b) => a.name.localeCompare(b.name)));
+    } catch {
+      addToast('Error loading guest list', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchData();
+  }, [categoryId]);
+
+  // ── Inline cell auto-save ─────────────────────────────────────────────────
+  const handleCellChange = useCallback(async (personId, fieldKey, newValue) => {
+    // Optimistic local update first
+    setPeople(prev => prev.map(p => {
+      if (p.id !== personId) return p;
+      if (fieldKey === 'name') {
+        return { ...p, name: newValue, updatedAt: new Date().toISOString() };
+      }
+      return {
+        ...p,
+        dynamicFields: { ...p.dynamicFields, [fieldKey]: newValue },
+        updatedAt: new Date().toISOString(),
+      };
+    }));
+
+    // Persist to DB
+    try {
+      const person = people.find(p => p.id === personId);
+      if (!person) return;
+      const updated = fieldKey === 'name'
+        ? { ...person, name: newValue, updatedAt: new Date().toISOString() }
+        : {
+            ...person,
+            dynamicFields: { ...person.dynamicFields, [fieldKey]: newValue },
+            updatedAt: new Date().toISOString(),
+          };
+      await updatePerson(updated);
+    } catch {
+      addToast('Failed to save change', 'error');
+      fetchData(); // rollback on error
+    }
+  }, [people]);
+
+  // ── Row toggles (Lock/Export) ─────────────────────────────────────────────
+  const handleToggleRow = useCallback(async (personId, field) => {
+    setPeople(prev => prev.map(p => {
+      if (p.id !== personId) return p;
+      return { ...p, [field]: !p[field], updatedAt: new Date().toISOString() };
+    }));
+
+    try {
+      const personArr = people; // avoid stale people in some contexts if needed, but callback deps are correct
+      const person = personArr.find(p => p.id === personId);
+      if (person) {
+        await updatePerson({ ...person, [field]: !person[field], updatedAt: new Date().toISOString() });
+      }
+    } catch {
+      addToast('Failed to update status', 'error');
+      fetchData();
+    }
+  }, [people]);
+
+  // ── Column resizing ────────────────────────────────────────────────────────
+  const handleColumnResize = useCallback(async (colId, newWidth) => {
+    if (colId === 'system-name') {
+      setNameWidth(newWidth);
+      return;
+    }
+    
+    setColumns(prev => prev.map(c => c.id === colId ? { ...c, width: newWidth } : c));
+    
+    // Persist to DB if not system
+    const col = columns.find(c => c.id === colId);
+    if (col && !col.isSystem) {
+      try {
+        await updateColumn({ ...col, width: newWidth });
+      } catch {
+        // Silently fail or log, resizing is high frequency
+      }
+    }
+  }, [columns]);
+
+  // ── Filtering & Sorting ──────────────────────────────────────────────────
+  const filteredAndSortedPeople = useMemo(() => {
+    let result = people.filter(p => {
+      const matchesSearch = (p.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilters = Object.entries(filters).every(([colId, value]) => {
+        if (!value) return true;
+        const personVal = p.dynamicFields?.[colId];
+        if (Array.isArray(personVal)) return personVal.includes(value);
+        return personVal === value;
+      });
+      return matchesSearch && matchesFilters;
+    });
+
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        let aVal, bVal;
+        if (sortConfig.key === 'name') {
+          aVal = a.name || '';
+          bVal = b.name || '';
+        } else {
+          aVal = a.dynamicFields?.[sortConfig.key] || '';
+          bVal = b.dynamicFields?.[sortConfig.key] || '';
+        }
+
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [people, searchTerm, filters, sortConfig]);
+
+  const handleSort = useCallback((key) => {
+    setSortConfig(prev => {
+      if (prev.key === key) {
+        if (prev.direction === 'asc') return { key, direction: 'desc' };
+        return { key: null, direction: 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  }, []);
+
+  async function handleBulkDelete() {
+    try {
+      await bulkDeletePeople(selectedIds);
+      addToast(`Deleted ${selectedIds.length} guests`);
+      setSelectedIds([]);
+      fetchData();
+    } catch {
+      addToast('Deletion failed', 'error');
+    } finally {
+      setShowBulkDelete(false);
+    }
+  }
+
+  function handleExport() {
+    try {
+      exportToExcel(filteredAndSortedPeople, columns, 'Guests_List');
+      addToast('Export started');
+    } catch {
+      addToast('Export failed', 'error');
+    }
+  }
+
+  if (isLoading) return <div className="flex justify-center py-24"><Spinner size="lg" /></div>;
+
+  return (
+    <div className="flex flex-col h-full bg-white">
+      {/* Toolbar */}
+      <div className="px-4 md:px-6 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3 bg-white sticky top-0 z-10">
+        <div className="flex items-center gap-2 flex-1 flex-wrap">
+          {selectedIds.length > 0 && (
+            <Button
+              variant="danger"
+              icon={Trash2}
+              size="sm"
+              onClick={() => setShowBulkDelete(true)}
+            >
+              Delete ({selectedIds.length})
+            </Button>
+          )}
+          <div className="relative max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by name..."
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
+          <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>Export</Button>
+          <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>Add Guest</Button>
+        </div>
+      </div>
+
+      {/* Row count */}
+      {filteredAndSortedPeople.length > 0 && (
+        <div className="px-4 md:px-6 py-2 text-xs font-bold text-gray-400 bg-gray-50/50 border-b border-gray-100">
+          {filteredAndSortedPeople.length} {filteredAndSortedPeople.length === 1 ? 'guest' : 'guests'} · Click any cell to edit · 🔒 Lock to prevent edits
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="flex-1 overflow-auto pb-24">
+        {filteredAndSortedPeople.length > 0 ? (
+          <PeopleTable
+            people={filteredAndSortedPeople}
+            columns={columns}
+            nameWidth={nameWidth}
+            selectedIds={selectedIds}
+            onSelect={setSelectedIds}
+            onEdit={p => { setEditingPerson(p); setIsPersonModalOpen(true); }}
+            onRefresh={fetchData}
+            onCellChange={handleCellChange}
+            onColumnResize={handleColumnResize}
+            onSort={handleSort}
+            sortConfig={sortConfig}
+            onToggleRow={handleToggleRow}
+            onAddGuest={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}
+          />
+        ) : (
+          <EmptyState
+            icon={Users}
+            heading={searchTerm || Object.values(filters).some(v => v) ? "No guests found" : "No guests yet"}
+            subtext="Add your first guest to start building the invite list."
+            actions={!searchTerm && !Object.values(filters).some(v => v) && (
+              <Button icon={Plus} onClick={() => setIsPersonModalOpen(true)}>Add First Guest</Button>
+            )}
+          />
+        )}
+      </div>
+
+      <PersonModal
+        isOpen={isPersonModalOpen}
+        onClose={() => { setIsPersonModalOpen(false); setEditingPerson(null); }}
+        onSuccess={fetchData}
+        person={editingPerson}
+        categoryId={categoryId}
+        eventId={eventId}
+        columns={columns}
+      />
+
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={fetchData}
+        eventId={eventId}
+        categoryId={categoryId}
+        columns={columns}
+      />
+
+      <ConfirmDialog
+        isOpen={showBulkDelete}
+        onClose={() => setShowBulkDelete(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete Selected Guests?"
+        message={`This will permanently delete ${selectedIds.length} guest${selectedIds.length > 1 ? 's' : ''} and all their data.`}
+        confirmLabel="Yes, Delete"
+      />
+    </div>
+  );
+}
