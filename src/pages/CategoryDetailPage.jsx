@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, Settings2, ChevronRight, Home, Calendar } from 'lucide-react';
+import { Users, Settings2, ChevronRight, Home, Calendar, Filter, ChevronUp, ChevronDown } from 'lucide-react';
 import { getCategoryById } from '../db/categoriesDb';
 import { getEventById } from '../db/eventsDb';
 import { useEventStore } from '../store/eventStore';
@@ -18,9 +18,9 @@ const TABS = [
 export default function CategoryDetailPage() {
   const { eventId, categoryId } = useParams();
   const navigate = useNavigate();
-  const { addToast } = useUIStore();
+  const { addToast, isToolbarVisible, setIsToolbarVisible } = useUIStore();
   const { setCurrentEvent, setCurrentCategory } = useEventStore();
-  
+
   const [activeTab, setActiveTab] = useState('people');
   const [event, setEvent] = useState(null);
   const [category, setCategory] = useState(null);
@@ -30,10 +30,10 @@ export default function CategoryDetailPage() {
     async function load() {
       try {
         const [ev, cat] = await Promise.all([getEventById(eventId), getCategoryById(categoryId)]);
-        if (!ev || !cat) { 
+        if (!ev || !cat) {
           addToast('Category not found', 'warning');
-          navigate('/categories'); 
-          return; 
+          navigate('/categories');
+          return;
         }
         setEvent(ev);
         setCategory(cat);
@@ -52,9 +52,9 @@ export default function CategoryDetailPage() {
   if (isLoading) return <div className="flex justify-center py-24"><Spinner size="lg" /></div>;
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-screen overflow-hidden bg-white">
       {/* Header & Tabs */}
-      <div className="px-4 md:px-6 pt-6 border-b border-gray-100 bg-white sticky top-0 z-30">
+      <div className="px-4 md:px-6 pt-6  border-gray-100 bg-white sticky top-0 z-30">
         {/* Breadcrumb */}
         <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">
           <button onClick={() => navigate('/events')} className="hover:text-indigo-600 transition-colors flex items-center gap-1">
@@ -69,19 +69,38 @@ export default function CategoryDetailPage() {
         </div>
 
         {/* Title Section */}
-        <div className="flex items-center gap-4 mb-8">
-          <div
-            className="w-14 h-14 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-sm border"
-            style={{ backgroundColor: `${category?.color}10`, color: category?.color, borderColor: `${category?.color}20` }}
-          >
-            <Users className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight">{category?.name}</h1>
-            <div className="flex items-center gap-2 mt-1 text-sm font-medium text-gray-400">
-               <Calendar className="w-3.5 h-3.5" />
-               <span>{event?.title}</span>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-14 h-14 rounded-3xl flex items-center justify-center flex-shrink-0 shadow-sm border"
+              style={{ backgroundColor: `${category?.color}10`, color: category?.color, borderColor: `${category?.color}20` }}
+            >
+              <Users className="w-7 h-7" />
             </div>
+            <div>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight">{category?.name}</h1>
+              <div className="flex items-center gap-2 mt-1 text-sm font-medium text-gray-400">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{event?.title}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Persistent Action Bar in Header */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsToolbarVisible(!isToolbarVisible)}
+              className={clsx(
+                "flex items-center gap-2 px-4 py-2 rounded-2xl border transition-all font-bold text-sm",
+                isToolbarVisible
+                  ? "bg-indigo-50 border-indigo-100 text-indigo-700 shadow-sm"
+                  : "bg-white border-gray-100 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+              )}
+            >
+
+              <span>{isToolbarVisible ? "Hide Tools" : "Show Tools"}</span>
+              {isToolbarVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
           </div>
         </div>
 
@@ -106,13 +125,11 @@ export default function CategoryDetailPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 min-h-0 bg-white">
+      <div className="flex-1 min-h-0 pt-4 overflow-hidden bg-white">
         {activeTab === 'people' ? (
           <PeopleListTab eventId={eventId} categoryId={categoryId} />
         ) : (
-          <div className="bg-gray-50/30 h-full overflow-auto">
-            <ColumnConfigTab eventId={eventId} categoryId={categoryId} />
-          </div>
+          <ColumnConfigTab eventId={eventId} categoryId={categoryId} />
         )}
       </div>
     </div>

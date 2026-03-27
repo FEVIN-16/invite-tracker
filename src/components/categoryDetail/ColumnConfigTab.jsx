@@ -10,10 +10,11 @@ import { ColumnFormModal } from '../config/ColumnFormModal';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
+import clsx from 'clsx';
 
 export function ColumnConfigTab({ eventId, categoryId }) {
   const { user } = useAuthStore();
-  const { addToast } = useUIStore();
+  const { addToast, isToolbarVisible } = useUIStore();
   const [columns, setColumns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -25,19 +26,55 @@ export function ColumnConfigTab({ eventId, categoryId }) {
   async function load() {
     setIsLoading(true);
     try {
-      const dbCols = await getColumnsByCategory(categoryId);
-      // Prepend system column "Name" as per requirements
-      const systemNameCol = {
-        id: 'system-name',
-        label: 'Name',
-        type: 'text',
-        isSystem: true,
-        fieldKey: 'name',
-        sortOrder: -1,
-        width: 200
-      };
-      setColumns([systemNameCol, ...dbCols]);
-    } catch {
+      let dbCols = await getColumnsByCategory(categoryId);
+      
+      // Check if system name column exists in DB
+      let systemNameCol = dbCols.find(c => c.fieldKey === 'name' || c.id === 'system-name');
+      if (!systemNameCol) {
+        systemNameCol = {
+          id: `system-name-${categoryId}`,
+          categoryId,
+          eventId,
+          userId: user.id,
+          label: 'Name',
+          type: 'text',
+          isSystem: true,
+          isFrozen: true,
+          isVisible: true,
+          fieldKey: 'name',
+          sortOrder: -100,
+          width: 200,
+          createdAt: new Date().toISOString(),
+        };
+        await createColumn(systemNameCol);
+        dbCols.push(systemNameCol);
+      }
+
+      // Check if system actions column exists in DB
+      let systemActionsCol = dbCols.find(c => c.id === `system-actions-${categoryId}`);
+      if (!systemActionsCol) {
+        systemActionsCol = {
+          id: `system-actions-${categoryId}`,
+          categoryId,
+          eventId,
+          userId: user.id,
+          label: 'Action Column',
+          type: 'text',
+          isSystem: true,
+          isFrozen: false, 
+          isVisible: true,
+          fieldKey: 'actions',
+          sortOrder: 1000, // Always last
+          width: 120,
+          createdAt: new Date().toISOString(),
+        };
+        await createColumn(systemActionsCol);
+        dbCols.push(systemActionsCol);
+      }
+      
+      setColumns(dbCols.sort((a, b) => a.sortOrder - b.sortOrder));
+    } catch (err) {
+      console.error('Column load error:', err);
       addToast('Failed to load columns', 'error');
     } finally {
       setIsLoading(false);
@@ -116,32 +153,52 @@ export function ColumnConfigTab({ eventId, categoryId }) {
   if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>;
 
   return (
-    <div className="max-w-2xl mx-auto p-4 md:p-6 pb-24">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Field Configuration</h2>
-          <p className="text-sm text-gray-500 mt-1">Customize the data you track for this category</p>
+    <div className="h-full flex flex-col overflow-hidden bg-white">
+      {/* Collapsible Toolbar */}
+      <div className={clsx(
+        "border-b border-gray-100 bg-white sticky top-0 z-50 transition-all duration-300 overflow-hidden",
+        isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
+      )}>
+        <div className="px-4 md:px-6 flex items-center justify-end">
+          <Button icon={Plus} size="sm" onClick={() => { setEditingColumn(null); setShowModal(true); }}>Add Field</Button>
         </div>
-        <Button icon={Plus} onClick={() => { setEditingColumn(null); setShowModal(true); }}>Add Field</Button>
       </div>
 
-      <div className="space-y-3">
-        {columns.map((col, i) => (
-          <ColumnItem
-            key={col.id}
-            column={col}
-            isFirst={i === 0}
-            isLast={i === columns.length - 1}
-            onMoveUp={() => moveColumn(col.id, 'up')}
-            onMoveDown={() => moveColumn(col.id, 'down')}
-            onEdit={c => { setEditingColumn(c); setShowModal(true); }}
-            onDelete={c => setDeletingColumn(c)}
-          />
-        ))}
+      {/* Grid Area */}
+      <div className="flex-1 overflow-auto pb-24">
+        <table className="w-full border-collapse">
+          <thead className="sticky top-0 z-40 bg-gray-50 border-b border-gray-200">
+            <tr className="bg-gray-50/50 border-b border-gray-100">
+              <th className="w-16 px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Order</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Field Name & Type</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Field ID</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Status</th>
+              <th className="w-28 px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {columns.map((col, i) => (
+              <ColumnItem
+                key={col.id}
+                column={col}
+                isFirst={i === 0}
+                isLast={i === columns.length - 1}
+                onMoveUp={() => moveColumn(col.id, 'up')}
+                onMoveDown={() => moveColumn(col.id, 'down')}
+                onEdit={c => { setEditingColumn(c); setShowModal(true); }}
+                onDelete={c => setDeletingColumn(c)}
+              />
+            ))}
+          </tbody>
+        </table>
+
         {columns.length === 0 && (
-          <div className="text-center py-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
-            <Settings2 className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-            <p className="text-sm text-gray-400 font-medium">No custom fields yet.</p>
+          <div className="text-center py-20 bg-white flex flex-col items-center justify-center">
+            <div className="w-16 h-16 rounded-3xl bg-gray-50 flex items-center justify-center mb-4">
+              <Settings2 className="w-8 h-8 text-gray-200" />
+            </div>
+            <p className="text-base font-bold text-gray-400">No custom fields yet.</p>
+            <p className="text-sm text-gray-300 mt-1 max-w-[200px] mx-auto">Click "Add Field" to start building your guest list columns.</p>
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 export const useUIStore = create((set, get) => ({
   toasts: [],
   isGlobalLoading: false,
+  isToolbarVisible: true,
 
   addToast: (message, type = 'success') => {
     const id = uuid();
@@ -14,4 +15,6 @@ export const useUIStore = create((set, get) => ({
   removeToast: (id) => set(state => ({ toasts: state.toasts.filter(t => t.id !== id) })),
 
   setGlobalLoading: (val) => set({ isGlobalLoading: val }),
+  
+  setIsToolbarVisible: (val) => set({ isToolbarVisible: val }),
 }));

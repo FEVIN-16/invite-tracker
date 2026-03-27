@@ -12,9 +12,11 @@ import { PeopleFilters } from '../people/PeopleFilters';
 import { PersonModal } from '../people/PersonModal';
 import { ImportModal } from '../people/ImportModal';
 import { exportToExcel } from '../../utils/excel';
+import { Badge } from '../ui/Badge';
+import clsx from 'clsx';
 
 export function PeopleListTab({ eventId, categoryId }) {
-  const { addToast } = useUIStore();
+  const { addToast, isToolbarVisible } = useUIStore();
   const [people, setPeople] = useState([]);
   const [columns, setColumns] = useState([]);
   const [nameWidth, setNameWidth] = useState(180);
@@ -72,10 +74,10 @@ export function PeopleListTab({ eventId, categoryId }) {
       const updated = fieldKey === 'name'
         ? { ...person, name: newValue, updatedAt: new Date().toISOString() }
         : {
-            ...person,
-            dynamicFields: { ...person.dynamicFields, [fieldKey]: newValue },
-            updatedAt: new Date().toISOString(),
-          };
+          ...person,
+          dynamicFields: { ...person.dynamicFields, [fieldKey]: newValue },
+          updatedAt: new Date().toISOString(),
+        };
       await updatePerson(updated);
     } catch {
       addToast('Failed to save change', 'error');
@@ -108,9 +110,9 @@ export function PeopleListTab({ eventId, categoryId }) {
       setNameWidth(newWidth);
       return;
     }
-    
+
     setColumns(prev => prev.map(c => c.id === colId ? { ...c, width: newWidth } : c));
-    
+
     // Persist to DB if not system
     const col = columns.find(c => c.id === colId);
     if (col && !col.isSystem) {
@@ -191,45 +193,52 @@ export function PeopleListTab({ eventId, categoryId }) {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Toolbar */}
-      <div className="px-4 md:px-6 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3 bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-2 flex-1 flex-wrap">
-          {selectedIds.length > 0 && (
-            <Button
-              variant="danger"
-              icon={Trash2}
-              size="sm"
-              onClick={() => setShowBulkDelete(true)}
-            >
-              Delete ({selectedIds.length})
-            </Button>
-          )}
-          <div className="relative max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name..."
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
-        </div>
+      {/* Toolbar & Toggle Group */}
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
+        {/* Toolbar Content */}
+        <div className={clsx(
+          "transition-all duration-300 overflow-hidden",
+          isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
+        )}>
+          <div className="px-4 md:px-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 flex-wrap">
+              {selectedIds.length > 0 && (
+                <Button
+                  variant="danger"
+                  icon={Trash2}
+                  size="sm"
+                  onClick={() => setShowBulkDelete(true)}
+                >
+                  Delete ({selectedIds.length})
+                </Button>
+              )}
+              <div className="relative max-w-xs flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name..."
+                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Badge variant="indigo" className="h-8 px-3 rounded-xl flex items-center gap-1.5 shrink-0 border border-indigo-100 shadow-sm">
+                  <Users className="w-3 h-3" />
+                  <span className="text-[11px] font-black">{people.length}</span>
+                </Badge>
+              </div>
+              <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
+            </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
-          <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>Export</Button>
-          <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>Add Guest</Button>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
+              <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>Export</Button>
+              <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>Add Guest</Button>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Row count */}
-      {filteredAndSortedPeople.length > 0 && (
-        <div className="px-4 md:px-6 py-2 text-xs font-bold text-gray-400 bg-gray-50/50 border-b border-gray-100">
-          {filteredAndSortedPeople.length} {filteredAndSortedPeople.length === 1 ? 'guest' : 'guests'} · Click any cell to edit · 🔒 Lock to prevent edits
-        </div>
-      )}
 
       {/* Table */}
       <div className="flex-1 overflow-auto pb-24">

@@ -12,6 +12,8 @@ const DEFAULT_FORM = {
   label: '',
   type: 'text',
   isRequired: false,
+  isFrozen: false,
+  isVisible: true,
   defaultValue: '',
   options: [],
   width: DEFAULT_COLUMN_WIDTH,
@@ -30,6 +32,8 @@ export function ColumnFormModal({ isOpen, onClose, onSave, editingColumn, existi
           label: editingColumn.label,
           type: editingColumn.type,
           isRequired: editingColumn.isRequired || false,
+          isFrozen: editingColumn.isFrozen || false,
+          isVisible: editingColumn.isVisible !== false, // default true
           defaultValue: editingColumn.defaultValue || '',
           options: editingColumn.options ? [...editingColumn.options] : [],
           width: editingColumn.width || DEFAULT_COLUMN_WIDTH,
@@ -182,13 +186,29 @@ export function ColumnFormModal({ isOpen, onClose, onSave, editingColumn, existi
         )}
 
 
-        <Checkbox
-          label="This field is required"
-          name="isRequired"
-          checked={form.isRequired}
-          onChange={handleChange}
-          disabled={editingColumn?.isSystem}
-        />
+        <div className="flex flex-col gap-3">
+          <Checkbox
+            label="This field is required"
+            name="isRequired"
+            checked={form.isRequired}
+            onChange={handleChange}
+            disabled={editingColumn?.isSystem}
+          />
+          <Checkbox
+            label="Freeze this column"
+            name="isFrozen"
+            checked={form.isFrozen}
+            onChange={handleChange}
+            disabled={editingColumn?.isSystem && editingColumn.id.includes('system-name')}
+          />
+          <Checkbox
+            label="Show this column in the list"
+            name="isVisible"
+            checked={form.isVisible}
+            onChange={handleChange}
+            disabled={editingColumn?.id.includes('system-name')} // Name must always be visible? User said name is frozen by default, but hideable?
+          />
+        </div>
       </div>
     </Modal>
   );

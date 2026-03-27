@@ -60,7 +60,6 @@ export function PeopleTable({
   const allSelected = people.length > 0 && selectedIds.length === people.length;
 
   // ── Column Resizing Logic ───────────────────────────────────────────────
-  // To avoid stale closures in useEffect-less listeners, we'll use a ref for the ID too
   const resizingIdRef = useRef(null);
   useEffect(() => {
     resizingIdRef.current = resizingColId;
@@ -80,7 +79,6 @@ export function PeopleTable({
     document.removeEventListener('mouseup', handleMouseUpStable);
   }, [handleMouseMoveStable]);
 
-  // Re-bind on mousedown
   function onStartResize(e, id, width) {
     e.preventDefault();
     e.stopPropagation();
@@ -99,13 +97,46 @@ export function PeopleTable({
       : <ArrowDown className="w-3 h-3 text-indigo-600 ml-1 inline-block" />;
   }
 
+  // ── Sticky Stacking Logic ──────────────────────────────────────────────────
+  const selectionWidth = 48; // w-12 = 3rem = 48px
+  
+  // Filter visible columns
+  const visibleColumns = columns.filter(c => c.isVisible !== false);
+  const nameCol = visibleColumns.find(c => c.fieldKey === 'name');
+  const isNameFrozen = nameCol ? !!nameCol.isFrozen : true;
+  const isNameVisible = nameCol ? nameCol.isVisible !== false : true;
+
+  // Find Action config
+  const actionCol = columns.find(c => c.fieldKey === 'actions');
+  const showActions = actionCol ? actionCol.isVisible !== false : true;
+  const freezeActions = actionCol ? !!actionCol.isFrozen : false;
+  
+  // Calculate offsets for frozen columns
+  let currentLeft = selectionWidth;
+  const columnOffsets = {};
+  
+  if (isNameFrozen && isNameVisible) {
+    columnOffsets['name'] = currentLeft;
+    currentLeft += (nameWidth || 180);
+  }
+
+  // Only freeze dynamic columns that are marked as isFrozen AND are visible
+  const dynamicCols = visibleColumns.filter(c => c.fieldKey !== 'name' && c.fieldKey !== 'actions');
+
+  dynamicCols.forEach(col => {
+    if (col.isFrozen) {
+      columnOffsets[col.id] = currentLeft;
+      currentLeft += (col.width || 150);
+    }
+  });
+
   return (
-    <div className="overflow-x-auto select-none">
+    <div className="select-none min-w-full">
       <table className="w-full border-collapse table-fixed">
         <thead>
           <tr className="bg-gray-50 border-b border-gray-200">
-            {/* Selection Column - Frozen */}
-            <th className="w-12 px-4 py-3 sticky left-0 z-30 bg-gray-50 border-r border-gray-100">
+            {/* Selection Column - Always Frozen */}
+            <th className="w-12 px-4 py-3 sticky top-0 left-0 z-40 bg-gray-50 border-r border-gray-100">
               <button 
                 onClick={toggleSelectAll} 
                 className={clsx(
@@ -117,27 +148,41 @@ export function PeopleTable({
               </button>
             </th>
 
-            {/* Name Column - Frozen */}
-            <th 
-              className="px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest sticky left-12 z-30 bg-gray-50 border-r border-gray-200 relative group/h cursor-pointer hover:bg-gray-100 transition-colors"
-              style={{ width: nameWidth || 180 }}
-              onClick={() => onSort('name')}
-            >
-              <div className="flex items-center truncate">
-                Name <SortIcon colKey="name" />
-              </div>
-              <div 
-                onMouseDown={(e) => onStartResize(e, 'system-name', nameWidth || 180)}
-                className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-indigo-300 transition-colors"
-              />
-            </th>
+            {/* Name Column - Dynamic Frozen */}
+            {isNameVisible && (
+              <th 
+                className={clsx(
+                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-r border-gray-200 relative group/h cursor-pointer hover:bg-gray-100 transition-colors sticky top-0",
+                  isNameFrozen ? "z-40" : "z-30"
+                )}
+                style={{ 
+                  width: nameWidth || 180,
+                  left: isNameFrozen ? columnOffsets['name'] : undefined
+                }}
+                onClick={() => onSort('name')}
+              >
+                <div className="flex items-center truncate">
+                  Name <SortIcon colKey="name" />
+                </div>
+                <div 
+                  onMouseDown={(e) => onStartResize(e, 'system-name', nameWidth || 180)}
+                  className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-indigo-300 transition-colors"
+                />
+              </th>
+            )}
 
             {/* Dynamic Columns */}
-            {columns.map(col => (
+            {dynamicCols.map(col => (
               <th
                 key={col.id}
-                className="px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest border-r border-gray-100 last:border-r-0 relative group/h overflow-hidden cursor-pointer hover:bg-gray-100 transition-colors"
-                style={{ width: col.width || 150 }}
+                className={clsx(
+                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-r border-gray-100 last:border-r-0 relative group/h overflow-hidden cursor-pointer hover:bg-gray-100 transition-colors sticky top-0",
+                  col.isFrozen ? "z-40" : "z-30"
+                )}
+                style={{ 
+                  width: col.width || 150,
+                  left: col.isFrozen ? columnOffsets[col.id] : undefined
+                }}
                 onClick={() => onSort(col.id)}
               >
                 <div className="flex items-center truncate">
@@ -150,10 +195,15 @@ export function PeopleTable({
               </th>
             ))}
             
-            {/* Action Column */}
-            <th className="px-4 py-3 text-right text-[11px] font-black text-gray-400 uppercase tracking-widest sticky right-0 z-30 bg-gray-50 border-l border-gray-100 w-28">
-              Action
-            </th>
+            {/* Action Column - Configurable */}
+            {showActions && (
+              <th className={clsx(
+                "px-4 py-3 text-right text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-l border-gray-100 w-28 sticky top-0",
+                freezeActions ? "right-0 z-40 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)]" : "z-30"
+              )}>
+                Action
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -165,9 +215,8 @@ export function PeopleTable({
                 selectedIds.includes(person.id) ? 'bg-indigo-50/40' : 'hover:bg-indigo-50/10'
               )}
             >
-              {/* Selection Checkbox - Frozen */}
+              {/* Selection Checkbox - Always Frozen */}
               <td className="px-4 py-2.5 sticky left-0 z-20 bg-inherit group-hover:bg-indigo-50/10 border-r border-gray-50 flex items-center justify-center">
-                {/* Background hack to keep it opaque during scroll */}
                 <div className="absolute inset-0 bg-white -z-10" />
                 <button 
                   onClick={() => toggleSelect(person.id)} 
@@ -182,20 +231,36 @@ export function PeopleTable({
                 </button>
               </td>
 
-              {/* Name - Frozen */}
-              <td className="px-4 py-2 sticky left-12 z-20 group-hover:bg-indigo-50/10 border-r border-gray-100 font-bold text-gray-900 overflow-hidden">
-                <div className="absolute inset-0 bg-white -z-10" />
-                <InlineCell
-                  col={{ id: 'name', type: 'text', label: 'Name' }}
-                  value={person.name}
-                  onChange={val => onCellChange(person.id, 'name', val)}
-                  disabled={person.isLocked}
-                />
-              </td>
+              {/* Name - Dynamic Frozen */}
+              {isNameVisible && (
+                <td 
+                  className={clsx(
+                    "px-4 py-2 group-hover:bg-inherit border-r border-gray-100 font-bold text-gray-900 overflow-hidden",
+                    isNameFrozen && "sticky z-20"
+                  )}
+                  style={{ left: isNameFrozen ? columnOffsets['name'] : undefined }}
+                >
+                  <div className="absolute inset-0 bg-white -z-10" />
+                  <InlineCell
+                    col={{ id: 'name', type: 'text', label: 'Name' }}
+                    value={person.name}
+                    onChange={val => onCellChange(person.id, 'name', val)}
+                    disabled={person.isLocked}
+                  />
+                </td>
+              )}
 
               {/* Dynamic Columns */}
-              {columns.map(col => (
-                <td key={col.id} className="px-4 py-2 border-r border-gray-50 last:border-r-0 overflow-hidden">
+              {dynamicCols.map(col => (
+                <td 
+                  key={col.id} 
+                  className={clsx(
+                    "px-4 py-2 border-r border-gray-50 last:border-r-0 overflow-hidden",
+                    col.isFrozen && "sticky z-20"
+                  )}
+                  style={{ left: col.isFrozen ? columnOffsets[col.id] : undefined }}
+                >
+                  <div className="absolute inset-0 bg-white -z-10" />
                   <InlineCell
                     col={col}
                     value={person.dynamicFields?.[col.id]}
@@ -205,39 +270,40 @@ export function PeopleTable({
                 </td>
               ))}
 
-              {/* Actions */}
-              <td className="px-3 py-2 sticky right-0 z-20 bg-inherit border-l border-gray-100">
-                {/* Background hack to keep it opaque during scroll */}
-                <div className="absolute inset-0 bg-white -z-10" />
-                <div className="flex justify-end gap-1 transition-opacity">
-                  {/* Export Prevention Toggle */}
-                  <button
-                    onClick={() => onToggleRow(person.id, 'excludeFromExport')}
-                    className={clsx(
-                      "p-1.5 rounded-lg transition-all",
-                      person.excludeFromExport ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
-                    )}
-                    title={person.excludeFromExport ? "Excluded from Export" : "Included in Export"}
-                  >
-                    {person.excludeFromExport ? <Ban className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
-                  </button>
+              {/* Actions - Configurable */}
+              {showActions && (
+                <td className={clsx(
+                  "px-3 py-2 bg-inherit border-l border-gray-100",
+                  freezeActions && "sticky right-0 z-20 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)]"
+                )}>
+                  <div className="absolute inset-0 bg-white -z-10" />
+                  <div className="flex justify-end gap-1 transition-opacity">
+                    <button
+                      onClick={() => onToggleRow(person.id, 'excludeFromExport')}
+                      className={clsx(
+                        "p-1.5 rounded-lg transition-all",
+                        person.excludeFromExport ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                      )}
+                      title={person.excludeFromExport ? "Excluded from Export" : "Included in Export"}
+                    >
+                      {person.excludeFromExport ? <Ban className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                    </button>
 
-                  {/* Lock Toggle */}
-                  <button
-                    onClick={() => onToggleRow(person.id, 'isLocked')}
-                    className={clsx(
-                      "p-1.5 rounded-lg transition-all",
-                      person.isLocked ? "text-amber-500 bg-amber-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
-                    )}
-                    title={person.isLocked ? "Locked - No Edits" : "Unlocked - Click to Edit"}
-                  >
-                    {person.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </td>
+                    <button
+                      onClick={() => onToggleRow(person.id, 'isLocked')}
+                      className={clsx(
+                        "p-1.5 rounded-lg transition-all",
+                        person.isLocked ? "text-amber-500 bg-amber-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                      )}
+                      title={person.isLocked ? "Locked - No Edits" : "Unlocked - Click to Edit"}
+                    >
+                      {person.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
-
         </tbody>
       </table>
 
