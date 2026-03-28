@@ -173,60 +173,48 @@ export default function GlobalPeoplePage() {
           {filtered.map(g => (
             <div
               key={g.id}
-              className="group relative bg-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all overflow-hidden"
+              className="group relative bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all overflow-hidden cursor-pointer"
+              onClick={() => navigate(`/people/${g.id}`)}
             >
-              {/* Colour blob */}
-              <div
-                className="absolute top-0 right-0 w-28 h-28 -mr-10 -mt-10 rounded-full opacity-5 group-hover:opacity-10 transition-opacity"
-                style={{ backgroundColor: g.color }}
-              />
-
-              {/* Edit / Delete */}
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                <button
-                  onClick={() => { setEditingGroup(g); setIsModalOpen(true); }}
-                  className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
-                >
-                  <Edit2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setDeletingGroup(g)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Icon + Name */}
-              <div className="flex items-center gap-4 mb-6">
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${g.color}15`, color: g.color }}
-                >
-                  <Tag className="w-6 h-6" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 truncate">{g.name}</h3>
-                  <p className="text-xs text-gray-400 font-medium mt-0.5">{g.count} People</p>
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <h3 className="text-lg font-black text-gray-900 truncate">{g.name}</h3>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <button
+                    onClick={e => { e.stopPropagation(); setEditingGroup(g); setIsModalOpen(true); }}
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={e => { e.stopPropagation(); setDeletingGroup(g); }}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
-              {/* Open button */}
-              <button
-                onClick={() => navigate(`/people/${g.id}`)}
-                className="flex items-center text-sm font-semibold text-indigo-600 hover:gap-2 gap-1 transition-all"
-              >
-                Open List <ArrowRight className="w-4 h-4" />
-              </button>
+              <p className="text-sm text-gray-400 mb-4 line-clamp-1">People Group · {g.count} Contacts</p>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50 text-sm font-medium text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>{g.count} people</span>
+                </div>
+                <span className="flex items-center gap-1 text-xs font-black text-indigo-600 group-hover:gap-2 transition-all">
+                  Open List <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
             </div>
           ))}
 
           {/* Add card */}
           <button
             onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}
-            className="border-2 border-dashed border-gray-200 rounded-3xl p-5 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex flex-col items-center justify-center gap-3 min-h-[160px] group"
+            className="border-2 border-dashed border-gray-200 rounded-xl p-5 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex flex-col items-center justify-center gap-3 min-h-[160px] group"
           >
-            <div className="w-12 h-12 rounded-2xl bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+            <div className="w-12 h-12 rounded-xl bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
               <Plus className="w-6 h-6 text-gray-400 group-hover:text-indigo-600 transition-colors" />
             </div>
             <span className="text-sm font-bold text-gray-400 group-hover:text-indigo-600 transition-colors">New Group</span>

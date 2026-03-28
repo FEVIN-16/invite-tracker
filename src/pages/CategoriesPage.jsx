@@ -302,44 +302,30 @@ export default function CategoriesPage() {
             {filtered.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map(cat => (
-                  <div
-                    key={cat.id}
-                    className="group bg-white border border-gray-200 rounded-xl p-5 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all relative overflow-hidden cursor-pointer"
-                    onClick={() => handleOpen(cat)}
-                  >
                     <div
-                      className="absolute top-0 right-0 w-28 h-28 -mr-10 -mt-10 rounded-full opacity-5 group-hover:opacity-10 transition-opacity"
-                      style={{ backgroundColor: cat.color }}
-                    />
-                    <div className="flex items-start justify-between mb-5">
-                      <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
-                        style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
-                      >
-                        <Tag className="w-6 h-6" />
-                      </div>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Tooltip content="Edit Category">
-                          <button
-                            onClick={e => { e.stopPropagation(); setEditingCategory(cat); setIsModalOpen(true); }}
-                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="Delete Category">
-                          <button
-                            onClick={e => { e.stopPropagation(); setDeletingCategory(cat); }}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                          >
-                            ✕
-                          </button>
-                        </Tooltip>
+                      key={cat.id}
+                      className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all relative overflow-hidden cursor-pointer"
+                      onClick={() => handleOpen(cat)}
+                    >
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <h3 className="text-lg font-black text-gray-900 truncate">{cat.name}</h3>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                        <button
+                          onClick={e => { e.stopPropagation(); setEditingCategory(cat); setIsModalOpen(true); }}
+                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={e => { e.stopPropagation(); setDeletingCategory(cat); }}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        >
+                          ✕
+                        </button>
                       </div>
                     </div>
-                    <h3 className="text-lg font-black text-gray-900 mb-1 truncate">{cat.name}</h3>
                     {cat.description && (
-                      <p className="text-sm text-gray-400 mb-3 line-clamp-1">{cat.description}</p>
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-1">{cat.description}</p>
                     )}
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
                       <div className="flex items-center gap-1.5 text-sm font-medium text-gray-500">
