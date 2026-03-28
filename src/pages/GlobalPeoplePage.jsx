@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Search, Tag, ArrowRight, Edit2, Trash2 } from 'lucide-react';
+import { Users, Plus, Search, Tag, ArrowRight, Edit2, Trash2, Upload } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { getGroupsByUser, createGroup, updateGroup, deleteGroup, getContactsByGroup } from '../db/contactsDb';
@@ -10,6 +10,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { GlobalMultiGroupImportModal } from '../components/people/GlobalMultiGroupImportModal';
 import { v4 as uuid } from 'uuid';
 import clsx from 'clsx';
 
@@ -96,6 +97,7 @@ export default function GlobalPeoplePage() {
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
   const [deletingGroup, setDeletingGroup] = useState(null);
 
@@ -141,7 +143,10 @@ export default function GlobalPeoplePage() {
           <h1 className="text-2xl font-bold text-gray-900">People</h1>
           <p className="text-sm text-gray-500 mt-1">Your global contact book — organized by group</p>
         </div>
-        <Button icon={Plus} onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}>New Group</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
+          <Button icon={Plus} onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}>New Group</Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -243,6 +248,12 @@ export default function GlobalPeoplePage() {
         title="Delete Group?"
         message={`Delete "${deletingGroup?.name}"? This will also remove all ${deletingGroup?.count || 0} contacts inside it.`}
         confirmLabel="Yes, Delete"
+      />
+
+      <GlobalMultiGroupImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={loadData}
       />
     </div>
   );

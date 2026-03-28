@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, ArrowLeft, Plus, Trash2, Search, Edit2, Phone, Mail, StickyNote, X } from 'lucide-react';
+import { Users, ArrowLeft, Plus, Trash2, Search, Edit2, Phone, Mail, StickyNote, X, Upload } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { getGroupsByUser, getContactsByGroup, createContact, updateContact, deleteContact, bulkDeleteContacts } from '../db/contactsDb';
@@ -10,6 +10,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { GlobalExcelImportModal } from '../components/people/GlobalExcelImportModal';
 import { v4 as uuid } from 'uuid';
 import clsx from 'clsx';
 
@@ -106,6 +107,7 @@ export default function GlobalCategoryDetailPage() {
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [deletingContact, setDeletingContact] = useState(null);
   const [showBulkDelete, setShowBulkDelete] = useState(false);
@@ -192,6 +194,7 @@ export default function GlobalCategoryDetailPage() {
                 Delete ({selectedIds.length})
               </Button>
             )}
+            <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
             <Button icon={Plus} onClick={() => { setEditingContact(null); setIsModalOpen(true); }}>Add Contact</Button>
           </div>
         </div>
@@ -324,6 +327,13 @@ export default function GlobalCategoryDetailPage() {
         title="Delete Selected?"
         message={`Delete ${selectedIds.length} selected contacts? This cannot be undone.`}
         confirmLabel="Delete All"
+      />
+
+      <GlobalExcelImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={loadData}
+        groupId={groupId}
       />
     </div>
   );

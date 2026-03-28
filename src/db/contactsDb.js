@@ -55,3 +55,12 @@ export async function bulkDeleteContacts(ids) {
   for (const id of ids) await tx.store.delete(id);
   await tx.done;
 }
+
+export async function bulkCreateContacts(contacts) {
+  const db = await initDB();
+  const tx = db.transaction('contacts', 'readwrite');
+  for (const contact of contacts) {
+    await tx.store.put(contact);
+  }
+  await tx.done;
+}

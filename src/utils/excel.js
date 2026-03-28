@@ -49,6 +49,25 @@ export function mapExcelData(rows, mapping, columns) {
 }
 
 /**
+ * Map raw row data to global contact fields.
+ */
+export function mapGlobalExcelData(rows, mapping) {
+  const [header, ...dataRows] = rows;
+  
+  return dataRows.map(row => {
+    const contact = {};
+    
+    Object.entries(mapping).forEach(([field, excelColIndex]) => {
+      if (excelColIndex === -1) return;
+      const value = row[excelColIndex];
+      contact[field] = String(value || '').trim();
+    });
+
+    return contact;
+  }).filter(c => c.name); // Ignore rows with no name
+}
+
+/**
  * Exports data to an Excel file.
  */
 export function exportToExcel(people, columns, fileName) {
