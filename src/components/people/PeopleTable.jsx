@@ -4,6 +4,7 @@ import { deletePerson } from '../../db/peopleDb';
 import { useUIStore } from '../../store/uiStore';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { InlineCell } from './InlineCell';
+import { Tooltip } from '../ui/Tooltip';
 import clsx from 'clsx';
 
 export function PeopleTable({
@@ -15,7 +16,7 @@ export function PeopleTable({
   onEdit,
   onRefresh,
   onCellChange,
-  onAddGuest,
+  onAddPerson,
   onColumnResize,
   onSort,
   sortConfig,
@@ -32,7 +33,7 @@ export function PeopleTable({
   async function handleDelete() {
     try {
       await deletePerson(deletingId);
-      addToast('Guest removed');
+      addToast('Person removed');
       onRefresh();
     } catch {
       addToast('Error removing guest', 'error');
@@ -278,27 +279,29 @@ export function PeopleTable({
                 )}>
                   <div className="absolute inset-0 bg-white -z-10" />
                   <div className="flex justify-end gap-1 transition-opacity">
-                    <button
-                      onClick={() => onToggleRow(person.id, 'excludeFromExport')}
-                      className={clsx(
-                        "p-1.5 rounded-lg transition-all",
-                        person.excludeFromExport ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
-                      )}
-                      title={person.excludeFromExport ? "Excluded from Export" : "Included in Export"}
-                    >
-                      {person.excludeFromExport ? <Ban className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
-                    </button>
+                    <Tooltip content={person.excludeFromExport ? "Excluded from Export" : "Included in Export"} position="left">
+                      <button
+                        onClick={() => onToggleRow(person.id, 'excludeFromExport')}
+                        className={clsx(
+                          "p-1.5 rounded-lg transition-all",
+                          person.excludeFromExport ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                        )}
+                      >
+                        {person.excludeFromExport ? <Ban className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                      </button>
+                    </Tooltip>
 
-                    <button
-                      onClick={() => onToggleRow(person.id, 'isLocked')}
-                      className={clsx(
-                        "p-1.5 rounded-lg transition-all",
-                        person.isLocked ? "text-amber-500 bg-amber-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
-                      )}
-                      title={person.isLocked ? "Locked - No Edits" : "Unlocked - Click to Edit"}
-                    >
-                      {person.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
-                    </button>
+                    <Tooltip content={person.isLocked ? "Locked - No Edits" : "Unlocked - Click to Edit"} position="left">
+                      <button
+                        onClick={() => onToggleRow(person.id, 'isLocked')}
+                        className={clsx(
+                          "p-1.5 rounded-lg transition-all",
+                          person.isLocked ? "text-amber-500 bg-amber-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                        )}
+                      >
+                        {person.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                      </button>
+                    </Tooltip>
                   </div>
                 </td>
               )}
@@ -311,8 +314,8 @@ export function PeopleTable({
         isOpen={!!deletingId}
         onClose={() => setDeletingId(null)}
         onConfirm={handleDelete}
-        title="Remove Guest?"
-        message="This will permanently delete the guest and all their data."
+        title="Remove Person?"
+        message="This will permanently delete the person and all their data."
         confirmLabel="Remove"
       />
     </div>

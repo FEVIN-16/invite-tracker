@@ -21,6 +21,8 @@ import DashboardPage from './pages/DashboardPage';
 import GlobalDashboardPage from './pages/GlobalDashboardPage';
 import GlobalCategoriesPage from './pages/GlobalCategoriesPage';
 import CategoryDetailPage from './pages/CategoryDetailPage';
+import GlobalPeoplePage from './pages/GlobalPeoplePage';
+import GlobalCategoryDetailPage from './pages/GlobalCategoryDetailPage';
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore();
@@ -61,10 +63,12 @@ export default function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
+            <Route path="/people" element={<GlobalPeoplePage />} />
+            <Route path="/people/:categoryId" element={<GlobalCategoryDetailPage />} />
             <Route path="/events" element={<EventsListPage />} />
             <Route path="/events/new" element={<CreateEventPage />} />
             <Route path="/events/:eventId/edit" element={<EditEventPage />} />
-            <Route path="/events/:eventId/dashboard" element={<DashboardPage />} />
+            <Route path="/events/:eventId/dashboard" element={<Navigate to="../categories" replace />} />
             <Route path="/dashboard" element={<GlobalDashboardPage />} />
             <Route path="/categories" element={<GlobalCategoriesPage />} />
             <Route path="/events/:eventId/categories" element={<CategoriesPage />} />

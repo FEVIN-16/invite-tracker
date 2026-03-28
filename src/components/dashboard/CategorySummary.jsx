@@ -1,21 +1,24 @@
 import { Users } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import clsx from 'clsx';
 
-export function CategorySummary({ data }) {
+export function CategorySummary({ data, hideHeader }) {
   const navigate = useNavigate();
   const { eventId } = useParams();
 
-  const sortedData = [...data].sort((a, b) => b.count - a.count);
+  const sortedData = [...data].sort((a, b) => b.count - (a.count || 0));
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-base font-bold text-gray-900">Guest Breakdown</h3>
-          <p className="text-xs text-gray-400">Guests per category</p>
+    <div className={clsx(!hideHeader && "bg-white rounded-2xl border border-gray-200 p-6")}>
+      {!hideHeader && (
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Guest Breakdown</h3>
+            <p className="text-xs text-gray-400">Guests per category</p>
+          </div>
+          <Users className="w-5 h-5 text-gray-400" />
         </div>
-        <Users className="w-5 h-5 text-gray-400" />
-      </div>
+      )}
 
       <div className="space-y-4">
         {sortedData.map((cat) => (

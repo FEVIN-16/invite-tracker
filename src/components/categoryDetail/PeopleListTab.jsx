@@ -11,6 +11,8 @@ import { PeopleTable } from '../people/PeopleTable';
 import { PeopleFilters } from '../people/PeopleFilters';
 import { PersonModal } from '../people/PersonModal';
 import { ImportModal } from '../people/ImportModal';
+import { GlobalPeopleImportModal } from '../../pages/GlobalPeopleImportModal';
+import { Tooltip } from '../ui/Tooltip';
 import { exportToExcel } from '../../utils/excel';
 import { Badge } from '../ui/Badge';
 import clsx from 'clsx';
@@ -29,6 +31,7 @@ export function PeopleListTab({ eventId, categoryId }) {
 
   const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isGlobalImportModalOpen, setIsGlobalImportModalOpen] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
   const [showBulkDelete, setShowBulkDelete] = useState(false);
 
@@ -41,7 +44,7 @@ export function PeopleListTab({ eventId, categoryId }) {
       setColumns(dbCols);
       setPeople(guests.sort((a, b) => a.name.localeCompare(b.name)));
     } catch {
-      addToast('Error loading guest list', 'error');
+      addToast('Error loading people list', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -170,7 +173,7 @@ export function PeopleListTab({ eventId, categoryId }) {
   async function handleBulkDelete() {
     try {
       await bulkDeletePeople(selectedIds);
-      addToast(`Deleted ${selectedIds.length} guests`);
+      addToast(`Deleted ${selectedIds.length} people`);
       setSelectedIds([]);
       fetchData();
     } catch {
@@ -197,44 +200,56 @@ export function PeopleListTab({ eventId, categoryId }) {
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
         {/* Toolbar Content */}
         <div className={clsx(
-          "transition-all duration-300 overflow-hidden",
+          "transition-all duration-300 overflow-visible",
           isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
         )}>
           <div className="px-4 md:px-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-1 flex-wrap">
+            <div className="flex items-center gap-2 flex-1 min-w-[200px]">
               {selectedIds.length > 0 && (
-                <Button
-                  variant="danger"
-                  icon={Trash2}
-                  size="sm"
-                  onClick={() => setShowBulkDelete(true)}
-                >
-                  Delete ({selectedIds.length})
-                </Button>
+                <Tooltip content="Delete Selected">
+                  <Button
+                    variant="danger"
+                    icon={Trash2}
+                    size="sm"
+                    onClick={() => setShowBulkDelete(true)}
+                  >
+                    <span className="hidden sm:inline">Delete ({selectedIds.length})</span>
+                    <span className="sm:hidden">{selectedIds.length}</span>
+                  </Button>
+                </Tooltip>
               )}
-              <div className="relative max-w-xs flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search by name..."
-                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <Badge variant="indigo" className="h-8 px-3 rounded-xl flex items-center gap-1.5 shrink-0 border border-indigo-100 shadow-sm">
-                  <Users className="w-3 h-3" />
-                  <span className="text-[11px] font-black">{people.length}</span>
-                </Badge>
+              <div className="relative flex-1 group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
               </div>
               <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
-              <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>Export</Button>
-              <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>Add Guest</Button>
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+              <Tooltip content="Import from People" position="bottom">
+                <Button variant="secondary" size="sm" icon={Users} onClick={() => setIsGlobalImportModalOpen(true)}>
+                  <span className="hidden lg:inline text-xs">Import from People</span>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Import CSV" position="bottom">
+                <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>
+                  <span className="hidden lg:inline text-xs">Import CSV</span>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Export to Excel" position="bottom">
+                <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>
+                  <span className="hidden lg:inline text-xs">Export</span>
+                </Button>
+              </Tooltip>
+              <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>
+                <span className="hidden sm:inline">Add Person</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -261,10 +276,10 @@ export function PeopleListTab({ eventId, categoryId }) {
         ) : (
           <EmptyState
             icon={Users}
-            heading={searchTerm || Object.values(filters).some(v => v) ? "No guests found" : "No guests yet"}
-            subtext="Add your first guest to start building the invite list."
+            heading={searchTerm || Object.values(filters).some(v => v) ? "No people found" : "No people yet"}
+            subtext="Add your first person to start building the list."
             actions={!searchTerm && !Object.values(filters).some(v => v) && (
-              <Button icon={Plus} onClick={() => setIsPersonModalOpen(true)}>Add First Guest</Button>
+              <Button icon={Plus} onClick={() => setIsPersonModalOpen(true)}>Add First Person</Button>
             )}
           />
         )}
@@ -289,12 +304,21 @@ export function PeopleListTab({ eventId, categoryId }) {
         columns={columns}
       />
 
+      <GlobalPeopleImportModal
+        isOpen={isGlobalImportModalOpen}
+        onClose={() => setIsGlobalImportModalOpen(false)}
+        onSuccess={fetchData}
+        eventId={eventId}
+        categoryId={categoryId}
+        columns={columns}
+      />
+
       <ConfirmDialog
         isOpen={showBulkDelete}
         onClose={() => setShowBulkDelete(false)}
         onConfirm={handleBulkDelete}
-        title="Delete Selected Guests?"
-        message={`This will permanently delete ${selectedIds.length} guest${selectedIds.length > 1 ? 's' : ''} and all their data.`}
+        title="Delete Selected People?"
+        message={`This will permanently delete ${selectedIds.length} person${selectedIds.length > 1 ? 's' : ''} and all their data.`}
         confirmLabel="Yes, Delete"
       />
     </div>

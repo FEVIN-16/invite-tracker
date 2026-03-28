@@ -1,6 +1,7 @@
 import { Filter, X, ChevronDown } from 'lucide-react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
+import { Tooltip } from '../ui/Tooltip';
 import clsx from 'clsx';
 
 export function PeopleFilters({ columns, filters, setFilters, people }) {
@@ -22,17 +23,19 @@ export function PeopleFilters({ columns, filters, setFilters, people }) {
   return (
     <div className="flex items-center gap-2">
       <Menu as="div" className="relative">
-        <MenuButton className={clsx(
-          "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all",
-          activeFiltersCount > 0 
-            ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100" 
-            : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"
-        )}>
-          <Filter className="w-4 h-4" />
-          <span>Filters</span>
-          {activeFiltersCount > 0 && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{activeFiltersCount}</span>}
-          <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-        </MenuButton>
+        <Tooltip content={activeFiltersCount > 0 ? `${activeFiltersCount} filters active` : "Filter List"} position="bottom">
+          <MenuButton className={clsx(
+            "flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-bold border transition-all truncate",
+            activeFiltersCount > 0 
+              ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100" 
+              : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"
+          )}>
+            <Filter className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Filters</span>
+            {activeFiltersCount > 0 && <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px]">{activeFiltersCount}</span>}
+            <ChevronDown className="w-3.5 h-3.5 opacity-50 shrink-0" />
+          </MenuButton>
+        </Tooltip>
 
         <Transition
           as={Fragment}
@@ -72,13 +75,14 @@ export function PeopleFilters({ columns, filters, setFilters, people }) {
       </Menu>
 
       {activeFiltersCount > 0 && (
-        <button 
-          onClick={clearFilters}
-          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-          title="Clear all filters"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <Tooltip content="Clear All Filters" position="bottom">
+          <button 
+            onClick={clearFilters}
+            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </Tooltip>
       )}
     </div>
   );

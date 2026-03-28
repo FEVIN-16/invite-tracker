@@ -5,6 +5,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { createCategory, updateCategory } from '../../db/categoriesDb';
 import { useUIStore } from '../../store/uiStore';
+import { useAuthStore } from '../../store/authStore';
 
 const PRESET_COLORS = ['#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#F43F5E', '#06B6D4'];
 
@@ -31,7 +32,14 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, eventId })
         await updateCategory({ ...category, ...form });
         addToast('Category updated');
       } else {
-        await createCategory({ ...form, id: uuid(), eventId, createdAt: new Date().toISOString() });
+        const userId = useAuthStore.getState().user.id;
+        await createCategory({ 
+          ...form, 
+          id: uuid(), 
+          eventId: eventId || null, 
+          userId, 
+          createdAt: new Date().toISOString() 
+        });
         addToast('Category created');
       }
       onSuccess();

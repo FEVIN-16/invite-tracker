@@ -9,7 +9,7 @@ const colors = {
 
 export function StatCard({ title, value, icon: Icon, color = 'indigo' }) {
   return (
-    <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
       <div className={clsx('w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0', colors[color])}>
         <Icon className="w-6 h-6" />
       </div>

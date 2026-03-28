@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, MoreHorizontal, LogOut, CalendarHeart } from 'lucide-react';
+import { Home, MoreHorizontal, LogOut, CalendarHeart, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import clsx from 'clsx';
@@ -12,6 +12,7 @@ export function BottomNav() {
   const [showMore, setShowMore] = useState(false);
 
   const tabs = [
+    { to: '/people', icon: Users, label: 'People' },
     { to: '/events', icon: Home, label: 'My Events' },
   ];
 
