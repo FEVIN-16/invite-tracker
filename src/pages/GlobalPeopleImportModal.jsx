@@ -124,7 +124,7 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
       isOpen={isOpen}
       onClose={onClose}
       title="Import from Global People"
-      size="xl"
+      size="4xl"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
@@ -140,7 +140,7 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
     >
       <div className="flex flex-col md:flex-row h-[500px] gap-6">
         {/* Sidebar: Groups */}
-        <div className="w-full md:w-60 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-900 pr-0 md:pr-4 overflow-hidden">
+        <div className="w-full md:w-60 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800 pr-0 md:pr-4 overflow-hidden">
           <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4 pl-2">My Groups</p>
           <div className="flex-1 overflow-auto space-y-1">
             {groups.map(g => (
@@ -180,7 +180,7 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
             />
           </div>
 
-          <div className="flex-1 overflow-auto border border-gray-50 dark:border-gray-900 rounded-2xl bg-white dark:bg-gray-950 shadow-inner transition-colors">
+          <div className="flex-1 overflow-auto border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-950 shadow-inner transition-colors">
             {isLoading ? (
               <div className="flex justify-center py-20"><Spinner /></div>
             ) : filtered.length === 0 ? (
@@ -190,8 +190,8 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
                 subtext={search ? "Try a different search term" : "This group is empty."} 
               />
             ) : (
-              <div className="divide-y divide-gray-50">
-                <div className="bg-gray-50/80 dark:bg-gray-900/80 px-4 py-2.5 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md border-b border-gray-50 dark:border-gray-800">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                <div className="bg-gray-50/80 dark:bg-gray-900/80 px-4 py-2.5 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
                   <span className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                     Showing {filtered.length} people
                   </span>

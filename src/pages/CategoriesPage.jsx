@@ -143,8 +143,8 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50/30 dark:bg-gray-950/20 transition-colors">
-      {/* Event Header */}
-      <div className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 px-4 md:px-8 py-6">
+      <div className="flex-1 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 px-4 md:px-8 py-5">
         <button
           onClick={() => navigate('/events')}
           className="flex items-center gap-1.5 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -154,19 +154,17 @@ export default function CategoriesPage() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <Tooltip content="Event Details">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-200">
-                <Calendar className="w-8 h-8 text-white" />
-              </div>
-            </Tooltip>
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg dark:shadow-none">
+              <Calendar className="w-5 h-5 text-white" />
+            </div>
             <div>
-              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">{event?.title}</h1>
+              <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">{event?.title}</h1>
               <div className="flex items-center gap-3 mt-1.5">
-                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest capitalize">{event?.type}</span>
+                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">{event?.type}</span>
                 {event?.date && (
                   <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-gray-800" />
-                    <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">{event.date}</span>
+                    <span className="w-1 h-1 rounded-full bg-gray-200 dark:bg-gray-800" />
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest leading-none">{event.date}</span>
                   </>
                 )}
               </div>
@@ -224,11 +222,26 @@ export default function CategoriesPage() {
           <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
             {stats ? (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard title="Total People" value={stats.totalGuests} icon={Users} color="indigo" />
-                  <StatCard title="Confirmed" value={stats.confirmedCount} icon={CheckCircle} color="emerald" />
-                  <StatCard title="Pending" value={stats.pendingCount} icon={Clock} color="amber" />
-                  <StatCard title="Categories" value={stats.catBreakdown.length} icon={BarChart2} color="blue" />
+                <div className="flex flex-wrap gap-4 mt-5">
+                  <div className="bg-white dark:bg-gray-900 px-4 py-3 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-black text-gray-900 dark:text-white tracking-tight">{stats.totalGuests}</p>
+                      <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Total Guests</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white dark:bg-gray-900 px-4 py-3 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <LayoutGrid className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-black text-gray-900 dark:text-white tracking-tight">{stats.categoryCount}</p>
+                      <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Categories</p>
+                    </div>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 space-y-4">
@@ -281,7 +294,7 @@ export default function CategoriesPage() {
           <div className="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite Categories</h2>
+                <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite Categories</h2>
                 <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{enriched.length} categories · {enriched.reduce((s, c) => s + c.peopleCount, 0)} total people</p>
               </div>
             </div>
@@ -308,7 +321,7 @@ export default function CategoriesPage() {
                       onClick={() => handleOpen(cat)}
                     >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">{cat.name}</h3>
+                      <h3 className="text-base font-black text-gray-900 dark:text-white truncate">{cat.name}</h3>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <button
                           onClick={e => { e.stopPropagation(); setEditingCategory(cat); setIsModalOpen(true); }}

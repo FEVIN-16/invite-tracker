@@ -141,7 +141,7 @@ export function ImportModal({ isOpen, onClose, onSuccess, eventId, categoryId, c
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2">Map Columns</h3>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-2">Map Columns</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                 <div className="space-y-1.5 flex flex-col justify-center">
                   <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest pl-1">Target Field</label>

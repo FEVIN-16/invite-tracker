@@ -118,12 +118,12 @@ export default function PeopleListPage() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: currentCategory?.color + '20', color: currentCategory?.color }}>
-              <Users className="w-6 h-6" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: currentCategory?.color + '20', color: currentCategory?.color }}>
+              <Users className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{currentCategory?.name}</h1>
-              <p className="text-xs text-gray-500">{people.length} Guests total</p>
+              <h1 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">{currentCategory?.name}</h1>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">{people.length} Guests total</p>
             </div>
           </div>
           <div className="flex gap-2">

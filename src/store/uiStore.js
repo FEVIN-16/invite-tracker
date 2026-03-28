@@ -5,7 +5,14 @@ export const useUIStore = create((set, get) => ({
   toasts: [],
   isGlobalLoading: false,
   isToolbarVisible: true,
+  isSidebarCollapsed: localStorage.getItem('isSidebarCollapsed') === 'true',
   theme: localStorage.getItem('theme') || 'light',
+
+  toggleSidebar: () => {
+    const newVal = !get().isSidebarCollapsed;
+    set({ isSidebarCollapsed: newVal });
+    localStorage.setItem('isSidebarCollapsed', newVal);
+  },
 
   addToast: (message, type = 'success') => {
     const id = uuid();

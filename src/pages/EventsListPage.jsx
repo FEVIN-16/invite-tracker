@@ -40,10 +40,10 @@ export default function EventsListPage() {
   );
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto transition-colors">
+    <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto transition-colors">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">My Events</h1>
+          <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">My Events</h1>
           <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Manage all your invitation lists</p>
         </div>
         <Link to="/events/new">

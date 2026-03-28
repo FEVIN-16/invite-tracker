@@ -57,7 +57,7 @@ export default function GlobalDashboardPage() {
             <button
               key={ev.id}
               onClick={() => navigate(`/events/${ev.id}/dashboard`)}
-              className="text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-7 hover:border-indigo-300 dark:hover:border-indigo-900 hover:shadow-2xl dark:hover:shadow-none hover:-translate-y-1.5 transition-all group border-l-4 border-l-transparent hover:border-l-indigo-500"
+              className="text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all group"
             >
               <div className="flex justify-between items-start mb-6">
                 <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-inner">

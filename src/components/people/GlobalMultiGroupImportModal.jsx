@@ -338,7 +338,7 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {pendingContacts.map(c => (
                           <tr key={c.tempId} className="hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-colors">
                             {activeFields.map(field => (

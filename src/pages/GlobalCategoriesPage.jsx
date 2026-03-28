@@ -40,10 +40,10 @@ export default function GlobalCategoriesPage() {
   if (isLoading) return <div className="flex justify-center py-16"><Spinner size="lg" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-6">
+    <div className="max-w-6xl mx-auto p-4 md:p-6">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">All Categories</h1>
-        <p className="text-sm text-gray-500 mt-1">Manage guest lists across all your events</p>
+        <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">All Categories</h1>
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Manage guest lists across all your events</p>
       </div>
       
       {/* Search */}
@@ -54,7 +54,7 @@ export default function GlobalCategoriesPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search categories or events..."
-          className="w-full pl-11 pr-4 py-3 text-sm border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none shadow-sm transition-all"
+          className="w-full pl-11 pr-4 py-3 text-sm border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm transition-all dark:placeholder:text-gray-600"
         />
       </div>
 
@@ -66,32 +66,28 @@ export default function GlobalCategoriesPage() {
             <button
               key={cat.id}
               onClick={() => navigate(`/events/${cat.eventId}/categories/${cat.id}/detail`)}
-              className="text-left bg-white border border-gray-200 rounded-2xl p-5 hover:border-indigo-300 hover:shadow-lg transition-all group relative overflow-hidden"
+              className="text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all group relative overflow-hidden"
             >
-              <div 
-                className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-5 group-hover:opacity-10 transition-opacity"
-                style={{ backgroundColor: cat.color }}
-              />
+
               
               <div className="flex items-center gap-4 mb-4">
                 <div
-                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: `${cat.color}15`, color: cat.color }}
+                  className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-600 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-inner"
                 >
                   <Tag className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-gray-900 truncate text-base">{cat.name}</p>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">{cat.eventTitle}</p>
+                  <p className="font-black text-gray-900 dark:text-white truncate text-base uppercase tracking-tight">{cat.name}</p>
+                  <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 truncate mt-0.5 uppercase tracking-widest">{cat.eventTitle}</p>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                  <Users className="w-3.5 h-3.5 text-gray-400" />
+              <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-gray-800">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">
+                  <Users className="w-3.5 h-3.5 text-gray-400 dark:text-gray-700" />
                   <span>{cat.peopleCount} guests</span>
                 </div>
-                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest group-hover:gap-2 transition-all">
                   Manage Guests →
                 </span>
               </div>

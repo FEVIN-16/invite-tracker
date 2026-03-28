@@ -103,9 +103,9 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 transition-colors">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Event Dashboard</h1>
+          <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Event Dashboard</h1>
           <p className="text-xs font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Real-time overview for <span className="text-indigo-600 dark:text-indigo-400">{currentEvent?.title}</span></p>
         </div>
       </div>

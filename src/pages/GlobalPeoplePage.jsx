@@ -139,12 +139,12 @@ export default function GlobalPeoplePage() {
   if (isLoading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8">
+    <div className="max-w-6xl mx-auto p-4 md:p-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 transition-colors">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">People</h1>
-          <p className="text-xs font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Your global contact book — organized by group</p>
+          <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">People</h1>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-2 uppercase tracking-widest leading-loose">Your global contact book — organized by group</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import Excel</Button>
@@ -174,10 +174,9 @@ export default function GlobalPeoplePage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map(g => (
-            <div
-              key={g.id}
-              className="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:shadow-2xl dark:hover:shadow-none hover:-translate-y-1.5 transition-all overflow-hidden cursor-pointer border-l-4"
-              style={{ borderLeftColor: g.color }}
+            <div 
+              key={g.id} 
+              className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all cursor-pointer relative overflow-hidden"
               onClick={() => navigate(`/people/${g.id}`)}
             >
               <div className="flex items-start justify-between gap-4 mb-2">
@@ -218,7 +217,7 @@ export default function GlobalPeoplePage() {
           {/* Add card */}
           <button
             onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}
-            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[180px] group overflow-hidden relative shadow-sm hover:shadow-md"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[160px] group"
           >
             <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center transition-all shadow-inner">
               <Plus className="w-8 h-8 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
