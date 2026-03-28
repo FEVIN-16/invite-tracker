@@ -102,11 +102,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-6">
+    <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 transition-colors">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-200 dark:border-gray-800 pb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Event Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Real-time overview for <span className="font-semibold text-indigo-600">{currentEvent?.title}</span></p>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Event Dashboard</h1>
+          <p className="text-xs font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Real-time overview for <span className="text-indigo-600 dark:text-indigo-400">{currentEvent?.title}</span></p>
         </div>
       </div>
 
@@ -127,29 +127,31 @@ export default function DashboardPage() {
 
         {/* Info Card */}
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Event Details</h3>
-            <div className="space-y-4">
-               <div>
-                 <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Type</p>
-                 <p className="text-sm font-semibold text-gray-800 capitalize">{currentEvent?.type}</p>
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-8 shadow-sm transition-all hover:shadow-md">
+            <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-600 mb-6 uppercase tracking-widest pl-1">Event Details</h3>
+            <div className="space-y-6">
+               <div className="group/item">
+                 <p className="text-[10px] text-gray-300 dark:text-gray-700 font-black mb-1.5 uppercase tracking-widest transition-colors group-hover/item:text-indigo-400">Type</p>
+                 <p className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-tight">{currentEvent?.type}</p>
                </div>
-               <div>
-                 <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Date</p>
-                 <p className="text-sm font-semibold text-gray-800">{currentEvent?.date || 'Not set'}</p>
+               <div className="group/item">
+                 <p className="text-[10px] text-gray-300 dark:text-gray-700 font-black mb-1.5 uppercase tracking-widest transition-colors group-hover/item:text-indigo-400">Date</p>
+                 <p className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-tight">{currentEvent?.date || 'Not set'}</p>
                </div>
-               <div>
-                 <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Location</p>
-                 <p className="text-sm font-semibold text-gray-800">{currentEvent?.location || 'Not set'}</p>
+               <div className="group/item">
+                 <p className="text-[10px] text-gray-300 dark:text-gray-700 font-black mb-1.5 uppercase tracking-widest transition-colors group-hover/item:text-indigo-400">Location</p>
+                 <p className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-tight line-clamp-2">{currentEvent?.location || 'Not set'}</p>
                </div>
             </div>
             <button 
               onClick={() => navigate(`/events/${eventId}/edit`)}
-              className="w-full mt-6 text-sm font-semibold text-indigo-600 hover:text-indigo-700 py-2 border-t border-gray-100"
+              className="w-full mt-8 pt-4 text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 border-t border-gray-100 dark:border-gray-800 uppercase tracking-widest transition-all"
             >
               Edit Event Info
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -40,25 +40,25 @@ export default function EventsListPage() {
   );
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto">
+    <div className="p-4 md:p-6 lg:p-8 max-w-5xl mx-auto transition-colors">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Events</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage all your invitation lists</p>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">My Events</h1>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Manage all your invitation lists</p>
         </div>
         <Link to="/events/new">
           <Button icon={Plus} className="w-full md:w-auto">Create New Event</Button>
         </Link>
       </div>
 
-      <div className="mb-6 relative">
-        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-gray-400" />
+      <div className="mb-6 relative group">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
+          <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
         </div>
         <input
           type="text"
           placeholder="Search events..."
-          className="w-full bg-white border border-gray-300 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+          className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all dark:text-white dark:placeholder:text-gray-600 shadow-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -66,7 +66,7 @@ export default function EventsListPage() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => <div key={i} className="h-48 bg-gray-100 rounded-2xl animate-pulse" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-48 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />)}
         </div>
       ) : filteredEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

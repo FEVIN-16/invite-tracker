@@ -71,13 +71,16 @@ function GroupModal({ isOpen, onClose, onSuccess, group }) {
           autoFocus
         />
         <div>
-          <label className="text-sm font-medium text-gray-700 block mb-2">Color</label>
-          <div className="flex flex-wrap gap-3">
+          <label className="text-sm font-black text-gray-700 dark:text-gray-300 block mb-3 pl-1 uppercase tracking-widest">Select Group Color</label>
+          <div className="flex flex-wrap gap-3 p-1">
             {COLORS.map(c => (
               <button
                 key={c} type="button"
                 onClick={() => setColor(c)}
-                className={`w-8 h-8 rounded-full border-2 transition-transform ${color === c ? 'border-gray-900 scale-110' : 'border-transparent'}`}
+                className={clsx(
+                  "w-9 h-9 rounded-full border-4 transition-all duration-300 hover:scale-110 shadow-sm",
+                  color === c ? "border-gray-900 dark:border-white scale-110" : "border-transparent"
+                )}
                 style={{ backgroundColor: c }}
               />
             ))}
@@ -138,25 +141,25 @@ export default function GlobalPeoplePage() {
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 transition-colors">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">People</h1>
-          <p className="text-sm text-gray-500 mt-1">Your global contact book — organized by group</p>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">People</h1>
+          <p className="text-xs font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Your global contact book — organized by group</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
+          <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import Excel</Button>
           <Button icon={Plus} onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}>New Group</Button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative mb-8 max-w-sm">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="relative mb-10 max-w-sm group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search groups..."
-          className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+          placeholder="Search your groups..."
+          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl text-sm font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm group-hover:shadow-md"
         />
       </div>
 
@@ -173,37 +176,40 @@ export default function GlobalPeoplePage() {
           {filtered.map(g => (
             <div
               key={g.id}
-              className="group relative bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all overflow-hidden cursor-pointer"
+              className="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:shadow-2xl dark:hover:shadow-none hover:-translate-y-1.5 transition-all overflow-hidden cursor-pointer border-l-4"
+              style={{ borderLeftColor: g.color }}
               onClick={() => navigate(`/people/${g.id}`)}
             >
-              <div className="flex items-start justify-between gap-3 mb-1">
-                <h3 className="text-lg font-black text-gray-900 truncate">{g.name}</h3>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <div className="flex items-start justify-between gap-4 mb-2">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white truncate uppercase tracking-tight">{g.name}</h3>
+                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all shrink-0">
                   <button
                     onClick={e => { e.stopPropagation(); setEditingGroup(g); setIsModalOpen(true); }}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                    className="p-2.5 text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800 rounded-xl transition-all"
+                    title="Edit Group"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={e => { e.stopPropagation(); setDeletingGroup(g); }}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    className="p-2.5 text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-800 rounded-xl transition-all"
+                    title="Delete Group"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-400 mb-4 line-clamp-1">People Group · {g.count} Contacts</p>
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-6">People Group · {g.count} Contacts</p>
 
               {/* Footer */}
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50 text-sm font-medium text-gray-500">
-                <div className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-50 dark:border-gray-800 text-xs font-black text-gray-500 dark:text-gray-500 uppercase tracking-widest">
+                <div className="flex items-center gap-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <Users className="w-4.5 h-4.5 text-gray-300 dark:text-gray-700" />
                   <span>{g.count} people</span>
                 </div>
-                <span className="flex items-center gap-1 text-xs font-black text-indigo-600 group-hover:gap-2 transition-all">
-                  Open List <ArrowRight className="w-3.5 h-3.5" />
+                <span className="flex items-center gap-1.5 text-[10px] text-indigo-600 dark:text-indigo-400 group-hover:gap-3 transition-all">
+                  Open List <ArrowRight className="w-4 h-4" />
                 </span>
               </div>
             </div>
@@ -212,12 +218,12 @@ export default function GlobalPeoplePage() {
           {/* Add card */}
           <button
             onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}
-            className="border-2 border-dashed border-gray-200 rounded-xl p-5 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex flex-col items-center justify-center gap-3 min-h-[160px] group"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[180px] group overflow-hidden relative shadow-sm hover:shadow-md"
           >
-            <div className="w-12 h-12 rounded-xl bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
-              <Plus className="w-6 h-6 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center transition-all shadow-inner">
+              <Plus className="w-8 h-8 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
             </div>
-            <span className="text-sm font-bold text-gray-400 group-hover:text-indigo-600 transition-colors">New Group</span>
+            <span className="text-xs font-black text-gray-400 dark:text-gray-700 uppercase tracking-widest group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Create New Group</span>
           </button>
         </div>
       )}

@@ -195,9 +195,9 @@ export function PeopleListTab({ eventId, categoryId }) {
   if (isLoading) return <div className="flex justify-center py-24"><Spinner size="lg" /></div>;
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-950 transition-colors">
       {/* Toolbar & Toggle Group */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 shadow-sm dark:shadow-none">
         {/* Toolbar Content */}
         <div className={clsx(
           "transition-all duration-300 overflow-visible",
@@ -219,11 +219,11 @@ export function PeopleListTab({ eventId, categoryId }) {
                 </Tooltip>
               )}
               <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search..."
-                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-transparent rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all font-medium"
+                  placeholder="Search guests..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 outline-none transition-all font-bold placeholder:text-gray-400 dark:placeholder:text-gray-600"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />

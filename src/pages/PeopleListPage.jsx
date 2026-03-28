@@ -105,9 +105,9 @@ export default function PeopleListPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-950 transition-colors">
       {/* Header Area */}
-      <div className="p-4 md:p-6 border-b border-gray-200">
+      <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
            <span className="hover:text-indigo-600 cursor-pointer" onClick={() => navigate('/events')}>Events</span>
            <span>/</span>
@@ -122,7 +122,7 @@ export default function PeopleListPage() {
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{currentCategory?.name}</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{currentCategory?.name}</h1>
               <p className="text-xs text-gray-500">{people.length} Guests total</p>
             </div>
           </div>
@@ -144,13 +144,13 @@ export default function PeopleListPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="px-4 py-3 md:px-6 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row gap-3">
+      <div className="px-4 py-3 md:px-6 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex flex-col md:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
           <input 
             type="text" 
             placeholder="Search by name..." 
-            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />

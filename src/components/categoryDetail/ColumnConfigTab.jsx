@@ -153,10 +153,10 @@ export function ColumnConfigTab({ eventId, categoryId }) {
   if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-white">
+    <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-gray-950 transition-colors">
       {/* Collapsible Toolbar */}
       <div className={clsx(
-        "border-b border-gray-100 bg-white sticky top-0 z-50 transition-all duration-300 overflow-hidden",
+        "border-b border-gray-100 dark:border-gray-900 bg-white dark:bg-gray-950 sticky top-0 z-50 transition-all duration-300 overflow-hidden shadow-sm dark:shadow-none",
         isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
       )}>
         <div className="px-4 md:px-6 flex items-center justify-end">
@@ -167,16 +167,16 @@ export function ColumnConfigTab({ eventId, categoryId }) {
       {/* Grid Area */}
       <div className="flex-1 overflow-auto pb-24">
         <table className="w-full border-collapse">
-          <thead className="sticky top-0 z-40 bg-gray-50 border-b border-gray-200">
-            <tr className="bg-gray-50/50 border-b border-gray-100">
-              <th className="w-16 px-4 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Order</th>
-              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Field Name & Type</th>
-              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Field ID</th>
-              <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">Status</th>
-              <th className="w-28 px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+          <thead className="sticky top-0 z-40 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+            <tr>
+              <th className="w-16 px-4 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">Order</th>
+              <th className="px-6 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-left">Field Name & Type</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-left hidden md:table-cell">Field ID</th>
+              <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-left hidden lg:table-cell">Status</th>
+              <th className="w-28 px-6 py-5 text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {columns.map((col, i) => (
               <ColumnItem
                 key={col.id}
@@ -193,12 +193,12 @@ export function ColumnConfigTab({ eventId, categoryId }) {
         </table>
 
         {columns.length === 0 && (
-          <div className="text-center py-20 bg-white flex flex-col items-center justify-center">
-            <div className="w-16 h-16 rounded-3xl bg-gray-50 flex items-center justify-center mb-4">
-              <Settings2 className="w-8 h-8 text-gray-200" />
+          <div className="text-center py-20 bg-white dark:bg-gray-950 flex flex-col items-center justify-center">
+            <div className="w-20 h-20 rounded-[2.5rem] bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center mb-6 shadow-inner">
+              <Settings2 className="w-10 h-10 text-gray-200 dark:text-gray-700" />
             </div>
-            <p className="text-base font-bold text-gray-400">No custom fields yet.</p>
-            <p className="text-sm text-gray-300 mt-1 max-w-[200px] mx-auto">Click "Add Field" to start building your guest list columns.</p>
+            <p className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">No custom fields yet</p>
+            <p className="text-xs font-bold text-gray-400 dark:text-gray-600 mt-2 max-w-[240px] mx-auto uppercase tracking-widest leading-loose">Click "Add Field" to start building your guest list columns.</p>
           </div>
         )}
       </div>

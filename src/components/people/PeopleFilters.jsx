@@ -27,8 +27,8 @@ export function PeopleFilters({ columns, filters, setFilters, people }) {
           <MenuButton className={clsx(
             "flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-sm font-bold border transition-all truncate",
             activeFiltersCount > 0 
-              ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100" 
-              : "bg-white border-gray-200 text-gray-600 hover:border-indigo-300"
+              ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none" 
+              : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-gray-50 dark:hover:bg-gray-800"
           )}>
             <Filter className="w-4 h-4 shrink-0" />
             <span className="hidden sm:inline">Filters</span>
@@ -42,13 +42,13 @@ export function PeopleFilters({ columns, filters, setFilters, people }) {
           enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100"
           leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="absolute right-0 mt-3 w-72 origin-top-right bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 focus:outline-none p-2 space-y-4">
+          <MenuItems className="absolute right-0 mt-3 w-72 origin-top-right bg-white dark:bg-gray-950 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-900 z-50 focus:outline-none p-2 space-y-4">
             <div className="max-h-[400px] overflow-auto p-2 space-y-5">
               {filterableColumns.map(col => (
                 <div key={col.id} className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">{col.label}</label>
+                  <label className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">{col.label}</label>
                   <select 
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 focus:bg-white transition-all appearance-none"
+                    className="w-full text-sm border border-gray-200 dark:border-gray-800 rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50 dark:bg-gray-900 dark:text-white focus:bg-white dark:focus:bg-gray-800 transition-all appearance-none"
                     value={filters[col.id] || ''}
                     onChange={e => updateFilter(col.id, e.target.value)}
                   >
@@ -61,11 +61,11 @@ export function PeopleFilters({ columns, filters, setFilters, people }) {
               ))}
             </div>
             
-            <div className="p-2 border-t border-gray-50 flex justify-between items-center">
-              <span className="text-[10px] font-bold text-gray-400">{activeFiltersCount} active</span>
+            <div className="p-2 border-t border-gray-50 dark:border-gray-900 flex justify-between items-center">
+              <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600">{activeFiltersCount} active mode</span>
               <button 
                 onClick={clearFilters}
-                className="text-xs text-red-500 font-bold hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                className="text-xs text-red-500 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition-colors"
               >
                 Reset All
               </button>

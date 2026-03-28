@@ -142,12 +142,12 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50/30">
+    <div className="flex flex-col h-full bg-gray-50/30 dark:bg-gray-950/20 transition-colors">
       {/* Event Header */}
-      <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-6">
+      <div className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 px-4 md:px-8 py-6">
         <button
           onClick={() => navigate('/events')}
-          className="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 hover:text-indigo-600 transition-colors"
+          className="flex items-center gap-1.5 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to My Events
         </button>
@@ -160,13 +160,13 @@ export default function CategoriesPage() {
               </div>
             </Tooltip>
             <div>
-              <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">{event?.title}</h1>
+              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">{event?.title}</h1>
               <div className="flex items-center gap-3 mt-1.5">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest capitalize">{event?.type}</span>
+                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest capitalize">{event?.type}</span>
                 {event?.date && (
                   <>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span className="text-xs font-medium text-gray-400">{event.date}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-200 dark:bg-gray-800" />
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">{event.date}</span>
                   </>
                 )}
               </div>
@@ -185,32 +185,32 @@ export default function CategoriesPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-8 border-b border-gray-100 mt-8 relative">
+        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative">
           {TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={clsx(
-                'flex items-center gap-2 pb-4 text-sm transition-all relative outline-none whitespace-nowrap',
+                'flex items-center gap-2 pb-4 text-[11px] md:text-xs uppercase tracking-widest transition-all relative outline-none whitespace-nowrap',
                 activeTab === tab.id
-                  ? 'text-indigo-600 font-black'
-                  : 'text-gray-400 font-bold hover:text-gray-600'
+                  ? 'text-indigo-600 dark:text-indigo-400 font-black'
+                  : 'text-gray-400 dark:text-gray-600 font-bold hover:text-gray-600 dark:hover:text-gray-400'
               )}
             >
               <Tooltip content={tab.label} position="bottom">
-                <tab.icon className={clsx('w-4 h-4', activeTab === tab.id ? 'text-indigo-600' : 'text-gray-400')} />
+                <tab.icon className={clsx('w-4 h-4', activeTab === tab.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-600')} />
               </Tooltip>
               <span>{tab.label}</span>
               {tab.id === 'categories' && enriched.length > 0 && (
                 <span className={clsx(
-                  "ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none transition-colors",
-                  activeTab === tab.id ? "bg-indigo-100 text-indigo-700" : "bg-gray-100 text-gray-500"
+                  "ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black leading-none transition-colors",
+                  activeTab === tab.id ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400" : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
                 )}>
                   {enriched.length}
                 </span>
               )}
               {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full" />
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
               )}
             </button>
           ))}
@@ -245,21 +245,21 @@ export default function CategoriesPage() {
                     <Accordion title="Event Details" icon={Calendar} defaultOpen>
                       <div className="space-y-4">
                         <div>
-                          <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Type</p>
-                          <p className="text-sm font-semibold text-gray-800 capitalize">{event?.type}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black mb-1.5 uppercase tracking-widest pl-1">Type</p>
+                          <p className="text-sm font-bold text-gray-800 dark:text-white capitalize bg-gray-50 dark:bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800">{event?.type}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Date</p>
-                          <p className="text-sm font-semibold text-gray-800">{event?.date || 'Not set'}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black mb-1.5 uppercase tracking-widest pl-1">Date</p>
+                          <p className="text-sm font-bold text-gray-800 dark:text-white bg-gray-50 dark:bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800">{event?.date || 'Not set'}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 font-medium mb-1 uppercase">Location</p>
-                          <p className="text-sm font-semibold text-gray-800">{event?.location || 'Not set'}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black mb-1.5 uppercase tracking-widest pl-1">Location</p>
+                          <p className="text-sm font-bold text-gray-800 dark:text-white bg-gray-50 dark:bg-gray-800/50 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800">{event?.location || 'Not set'}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => navigate(`/events/${eventId}/edit`)}
-                        className="w-full mt-6 text-sm font-semibold text-indigo-600 hover:text-indigo-700 py-2 border-t border-gray-100 text-center"
+                        className="w-full mt-6 text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 py-3 border-t border-gray-50 dark:border-gray-800 text-center transition-colors"
                       >
                         Edit Event Info
                       </button>
@@ -279,22 +279,22 @@ export default function CategoriesPage() {
         ) : (
           // ── Categories Tab ─────────────────────────────────────────────────
           <div className="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-xl font-black text-gray-900">Invite Categories</h2>
-                <p className="text-sm text-gray-400 mt-0.5">{enriched.length} categories · {enriched.reduce((s, c) => s + c.peopleCount, 0)} total people</p>
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite Categories</h2>
+                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{enriched.length} categories · {enriched.reduce((s, c) => s + c.peopleCount, 0)} total people</p>
               </div>
             </div>
 
             {enriched.length > 0 && (
-              <div className="relative mb-6 max-w-sm">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div className="relative mb-8 max-w-sm group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-indigo-500" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  className="w-full pl-11 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                  className="w-full pl-12 pr-4 py-3 text-sm border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:placeholder:text-gray-600 shadow-sm"
                 />
               </div>
             )}
@@ -304,36 +304,36 @@ export default function CategoriesPage() {
                 {filtered.map(cat => (
                     <div
                       key={cat.id}
-                      className="group bg-white border border-gray-200 rounded-xl p-4 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50 transition-all relative overflow-hidden cursor-pointer"
+                      className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all relative overflow-hidden cursor-pointer"
                       onClick={() => handleOpen(cat)}
                     >
-                    <div className="flex items-start justify-between gap-3 mb-1">
-                      <h3 className="text-lg font-black text-gray-900 truncate">{cat.name}</h3>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">{cat.name}</h3>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <button
                           onClick={e => { e.stopPropagation(); setEditingCategory(cat); setIsModalOpen(true); }}
-                          className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); setDeletingCategory(cat); }}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
                         >
                           ✕
                         </button>
                       </div>
                     </div>
                     {cat.description && (
-                      <p className="text-sm text-gray-400 mb-4 line-clamp-1">{cat.description}</p>
+                      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-6 line-clamp-2 uppercase tracking-widest">{cat.description}</p>
                     )}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-                      <div className="flex items-center gap-1.5 text-sm font-medium text-gray-500">
-                        <Users className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-center justify-between mt-4 pt-5 border-t border-gray-50 dark:border-gray-800">
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                        <Users className="w-3.5 h-3.5 text-gray-400 dark:text-gray-600" />
                         <span>{cat.peopleCount} people</span>
                       </div>
-                      <span className="flex items-center gap-1 text-xs font-black text-indigo-600 group-hover:gap-2 transition-all">
-                        Manage <ChevronRight className="w-3.5 h-3.5" />
+                      <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 group-hover:gap-2 transition-all">
+                        Manage <ChevronRight className="w-3 h-3" />
                       </span>
                     </div>
                   </div>
@@ -342,12 +342,12 @@ export default function CategoriesPage() {
                 {/* Add card */}
                 <button
                   onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
-                  className="border-2 border-dashed border-gray-200 rounded-xl p-5 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex flex-col items-center justify-center gap-3 min-h-[160px] group"
+                  className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[160px] group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
-                    <Plus className="w-6 h-6 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                  <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center transition-colors">
+                    <Plus className="w-6 h-6 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
                   </div>
-                  <span className="text-sm font-bold text-gray-400 group-hover:text-indigo-600 transition-colors">Add Invite Category</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Add Category</span>
                 </button>
               </div>
             ) : (

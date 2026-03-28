@@ -50,19 +50,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4 transition-colors relative">
+      <div className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-2xl p-8 border border-transparent dark:border-gray-800 relative group overflow-hidden">
+        {/* Theme Toggle */}
+        <button 
+          onClick={useUIStore.getState().toggleTheme}
+          className="absolute top-4 right-4 p-2.5 text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-800 rounded-xl transition-all z-10"
+          title="Toggle Theme"
+        >
+          {useUIStore.getState().theme === 'light' ? (
+            <Moon className="w-4 h-4" fill="currentColor" fillOpacity={0.1} />
+          ) : (
+            <Sun className="w-4 h-4" />
+          )}
+        </button>
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-3">
             <CalendarHeart className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900">InviteTracker</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to continue</p>
+          <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">InviteTracker</h1>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Sign in to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {errors.form && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">
+            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/20 text-red-700 dark:text-red-400 text-sm rounded-lg px-3 py-2 font-bold">
               {errors.form}
             </div>
           )}
@@ -92,9 +104,9 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-8">
           New here?{' '}
-          <Link to="/signup" className="text-indigo-600 font-medium hover:underline">Create an account</Link>
+          <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">Create an account</Link>
         </p>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { readExcelFile, mapGlobalExcelData } from '../../utils/excel';
 import { bulkCreateContacts, getGroupsByUser } from '../../db/contactsDb';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
-import { Upload, FileType, CheckCircle2, Search, Filter, Group, UserPlus, Users, Phone, Mail, StickyNote } from 'lucide-react';
+import { Upload, FileType, CheckCircle2, Search, Filter, Group, UserPlus, Users, Phone, Mail, StickyNote, CheckSquare, Square } from 'lucide-react';
 import { v4 as uuid } from 'uuid';
 import clsx from 'clsx';
 
@@ -228,14 +228,14 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
         {step === 1 && (
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer transition-all group"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-16 flex flex-col items-center justify-center gap-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/10 cursor-pointer transition-all group overflow-hidden relative shadow-sm hover:shadow-md"
           >
-            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-              <Upload className="w-8 h-8 text-gray-400 group-hover:text-indigo-600" />
+            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-all shadow-inner">
+              <Upload className="w-10 h-10 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
             </div>
             <div className="text-center">
-              <p className="text-base font-black text-gray-900">Upload your People List</p>
-              <p className="text-xs text-gray-500 mt-1">Excel (.xlsx) or CSV files supported</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Upload People List</p>
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Excel (.xlsx) or CSV files supported</p>
             </div>
             <input type="file" ref={fileInputRef} hidden accept=".xlsx,.xls,.csv" onChange={handleFileChange} />
           </div>
@@ -243,12 +243,12 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
 
         {step === 2 && (
           <div className="space-y-6 px-2">
-            <div className="bg-indigo-50/50 p-3 rounded-xl flex gap-3 border border-indigo-100 items-center">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-50 shrink-0">
-                <FileType className="w-5 h-5" />
+            <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-5 rounded-2xl flex gap-4 border border-indigo-100 dark:border-indigo-900/20 items-center">
+              <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-50 dark:border-indigo-900/20 shrink-0">
+                <FileType className="w-6 h-6" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-black text-indigo-900 truncate">{file?.name}</p>
+                <p className="text-sm font-black text-indigo-900 dark:text-indigo-300 truncate">{file?.name}</p>
                 <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-tight">{rawRows.length - 1} rows detected</p>
               </div>
             </div>
@@ -261,11 +261,11 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 {TARGET_FIELDS.map(field => (
                   <div key={field.id} className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">
                       {field.label} {field.required && <span className="text-red-500">*</span>}
                     </label>
                     <select 
-                      className="w-full h-10 rounded-xl border border-gray-200 px-4 text-xs font-black bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 px-4 text-xs font-black bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
                       value={mapping[field.id]}
                       onChange={e => setMapping({ ...mapping, [field.id]: parseInt(e.target.value) })}
                     >
@@ -282,37 +282,37 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
         {step === 3 && (
           <div className="space-y-6">
             {/* Tabs */}
-            <div className="flex bg-gray-100 p-1 rounded-2xl">
+            <div className="flex bg-gray-100 dark:bg-gray-900 p-1.5 rounded-2xl transition-colors">
               <button 
                 onClick={() => setImportMode('single')}
                 className={clsx(
-                  "flex-1 py-2.5 px-4 rounded-xl text-xs font-black transition-all uppercase tracking-widest",
-                  importMode === 'single' ? "bg-white shadow-sm text-indigo-600" : "text-gray-400 hover:text-gray-600"
+                  "flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all uppercase tracking-widest",
+                  importMode === 'single' ? "bg-white dark:bg-gray-800 shadow-md text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400"
                 )}
               >
-                Assign to Single Group
+                Single Group
               </button>
               <button 
                 onClick={() => setImportMode('multi')}
                 className={clsx(
-                  "flex-1 py-2.5 px-4 rounded-xl text-xs font-black transition-all uppercase tracking-widest",
-                  importMode === 'multi' ? "bg-white shadow-sm text-indigo-600" : "text-gray-400 hover:text-gray-600"
+                  "flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all uppercase tracking-widest",
+                  importMode === 'multi' ? "bg-white dark:bg-gray-800 shadow-md text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400"
                 )}
               >
-                Advanced Multi-Group
+                Multi-Group
               </button>
             </div>
 
             {importMode === 'single' ? (
               <div className="space-y-6 py-2 px-1">
-                <div className="flex items-center gap-4 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 shadow-sm">
-                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-50 shrink-0">
+                <div className="flex items-center gap-4 bg-indigo-50/50 dark:bg-indigo-950/20 p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/10 shadow-sm transition-colors">
+                  <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-50 dark:border-indigo-900/20 shrink-0">
                     <Users className="w-6 h-6" />
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Target Group</label>
+                  <div className="flex-1 space-y-1.5">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">Target Group</label>
                     <select 
-                      className="w-full h-10 rounded-xl border border-gray-200 px-4 text-xs font-black bg-white shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                      className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 px-4 text-xs font-black bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all"
                       value={globalGroupId}
                       onChange={e => setGlobalGroupId(e.target.value)}
                     >
@@ -327,28 +327,28 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                   count={pendingContacts.length}
                   icon={Users}
                 >
-                  <div className="max-h-[350px] overflow-y-auto -m-1 pr-1 border border-gray-100 rounded-2xl bg-white">
+                  <div className="max-h-[350px] overflow-y-auto -m-1 pr-1 border border-gray-100 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 transition-colors">
                     <table className="w-full text-left border-collapse">
-                      <thead className="bg-gray-50/80 sticky top-0 z-10 border-b border-gray-100">
+                      <thead className="bg-gray-50/80 dark:bg-gray-950/80 sticky top-0 z-10 border-b border-gray-100 dark:border-gray-800">
                         <tr>
                           {activeFields.map(field => (
-                            <th key={field.id} className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            <th key={field.id} className="px-5 py-3.5 text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                               {field.label}
                             </th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-50">
+                      <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                         {pendingContacts.map(c => (
-                          <tr key={c.tempId} className="hover:bg-gray-50/30 transition-colors">
+                          <tr key={c.tempId} className="hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-colors">
                             {activeFields.map(field => (
-                              <td key={field.id} className="px-4 py-2.5">
+                              <td key={field.id} className="px-5 py-3">
                                 <span className={clsx(
-                                  "text-sm font-bold truncate block max-w-[200px]",
-                                  field.id === 'name' ? "text-gray-900" : "text-gray-500",
-                                  field.id === 'identifier' && "text-indigo-600 italic font-black"
+                                  "text-sm font-bold truncate block max-w-[200px] transition-colors",
+                                  field.id === 'name' ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400",
+                                  field.id === 'identifier' && "text-indigo-600 dark:text-indigo-400 italic font-black"
                                 )}>
-                                  {c[field.id] || <span className="text-gray-300 italic font-medium">Empty</span>}
+                                  {c[field.id] || <span className="text-gray-300 dark:text-gray-700 italic font-medium">Empty</span>}
                                 </span>
                               </td>
                             ))}
@@ -361,13 +361,13 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex flex-col gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex flex-col gap-5 bg-gray-50/50 dark:bg-gray-900/40 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 transition-colors">
                   {/* Row 1: Bulk Action */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Bulk Assign Group</label>
-                    <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">Bulk Assign Group</label>
+                    <div className="flex flex-col sm:flex-row gap-3">
                         <select 
-                          className="flex-1 h-10 rounded-xl border border-gray-200 px-4 text-[11px] font-black bg-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm min-w-0"
+                          className="flex-1 h-11 rounded-xl border border-gray-200 dark:border-gray-800 px-4 text-xs font-black bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none shadow-sm min-w-0 transition-all"
                           value={bulkGroupId}
                           onChange={e => {
                             setBulkGroupId(e.target.value);
@@ -379,7 +379,7 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                         {bulkGroupId !== "" && (
                           <div className="flex gap-2 shrink-0">
                             <Button 
-                              className="h-10 px-6 whitespace-nowrap" 
+                              className="h-11 px-8 whitespace-nowrap" 
                               variant={isBulkChangeApplied ? "secondary" : "primary"} 
                               onClick={handleApplyBulkGroup}
                               disabled={isBulkChangeApplied}
@@ -387,7 +387,7 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                               {isBulkChangeApplied ? 'Applied' : 'Apply'}
                             </Button>
                             {history.length > 0 && (
-                              <Button className="h-10 px-4 whitespace-nowrap" variant="secondary" onClick={handleUndo}>Revert</Button>
+                              <Button className="h-11 px-5 whitespace-nowrap" variant="secondary" onClick={handleUndo}>Revert</Button>
                             )}
                           </div>
                         )}
@@ -395,14 +395,14 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                   </div>
                   
                   {/* Row 2: Search */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Search Imported List</label>
-                    <div className="relative">
-                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">Search Imported List</label>
+                    <div className="relative group">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
                       <input
                         type="text"
-                        placeholder="Filter by name or phone..."
-                        className="w-full h-10 pl-11 pr-4 bg-white border border-gray-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+                        placeholder="Filter by name, phone or email..."
+                        className="w-full h-11 pl-12 pr-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs font-black text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none shadow-sm transition-all"
                         value={previewSearch}
                         onChange={e => setPreviewSearch(e.target.value)}
                       />
@@ -410,52 +410,58 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                   </div>
                 </div>
 
-                <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white max-h-[350px] overflow-y-auto">
+                <div className="border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden bg-white dark:bg-gray-900 max-h-[350px] overflow-y-auto transition-colors">
                   <table className="w-full text-left border-collapse">
-                    <thead className="bg-gray-50 sticky top-0 z-10 border-b border-gray-100">
+                    <thead className="bg-gray-50 dark:bg-gray-950 sticky top-0 z-10 border-b border-gray-100 dark:border-gray-800">
                       <tr>
-                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest w-12 text-center">
-                          <input 
-                            type="checkbox" 
-                            className="rounded"
-                            checked={pendingContacts.length > 0 && pendingContacts.every(c => c.selected)}
-                            onChange={(e) => setPendingContacts(prev => prev.map(c => ({ ...c, selected: e.target.checked })))}
-                          />
+                        <th className="px-5 py-4 text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest w-12 text-center">
+                          <button 
+                            onClick={(e) => setPendingContacts(prev => prev.map(c => ({ ...c, selected: !pendingContacts.every(x => x.selected) })))}
+                            className={clsx(
+                              "p-1 transition-all",
+                              pendingContacts.length > 0 && pendingContacts.every(c => c.selected) ? "text-indigo-600 dark:text-indigo-400" : "text-gray-300 dark:text-gray-700 hover:text-indigo-600"
+                            )}
+                          >
+                            {pendingContacts.length > 0 && pendingContacts.every(c => c.selected) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                          </button>
                         </th>
                         {activeFields.map(field => (
-                          <th key={field.id} className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                          <th key={field.id} className="px-5 py-4 text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                             {field.label}
                           </th>
                         ))}
-                        <th className="px-4 py-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Assign to Group</th>
+                        <th className="px-5 py-4 text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">Assign to Group</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                       {filteredPreview.map(contact => (
-                        <tr key={contact.tempId} className={clsx("hover:bg-gray-50/50 transition-colors", !contact.selected && "opacity-50")}>
-                          <td className="px-4 py-3 text-center">
-                            <input 
-                              type="checkbox" 
-                              className="rounded text-indigo-600 focus:ring-indigo-500"
-                              checked={contact.selected}
-                              onChange={(e) => setPendingContacts(prev => prev.map(c => c.tempId === contact.tempId ? { ...c, selected: e.target.checked } : c))}
-                            />
+                        <tr key={contact.tempId} className={clsx("hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors", !contact.selected && "opacity-50")}>
+                          <td className="px-5 py-4 text-center">
+                            <button 
+                              onClick={() => setPendingContacts(prev => prev.map(c => c.tempId === contact.tempId ? { ...c, selected: !contact.selected } : c))}
+                              className={clsx(
+                                "p-1 transition-all",
+                                contact.selected ? "text-indigo-600 dark:text-indigo-400" : "text-gray-300 dark:text-gray-700 hover:text-indigo-600"
+                              )}
+                            >
+                              {contact.selected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                            </button>
                           </td>
                           {activeFields.map(field => (
-                            <td key={field.id} className="px-4 py-3">
+                            <td key={field.id} className="px-5 py-4">
                               <span className={clsx(
-                                "text-sm font-bold truncate block max-w-[150px]",
-                                field.id === 'name' ? "text-gray-900" : "text-gray-500",
-                                field.id === 'identifier' && "text-indigo-600 italic font-black"
+                                "text-sm font-bold truncate block max-w-[150px] transition-colors",
+                                field.id === 'name' ? "text-gray-900 dark:text-gray-100" : "text-gray-500 dark:text-gray-400",
+                                field.id === 'identifier' && "text-indigo-600 dark:text-indigo-400 italic font-black"
                               )}>
                                 {contact[field.id]}
                               </span>
                             </td>
                           ))}
-                          <td className="px-4 py-3">
+                          <td className="px-5 py-4 text-sm font-bold">
                             {bulkGroupId === "" ? (
                               <select 
-                                className="w-full h-9 rounded-lg border border-gray-200 px-3 text-xs font-bold bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full h-10 rounded-xl border border-gray-200 dark:border-gray-800 px-4 text-xs font-black bg-white dark:bg-gray-950 text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none shadow-sm transition-all"
                                 value={contact.groupId}
                                 onChange={(e) => setPendingContacts(prev => prev.map(c => c.tempId === contact.tempId ? { ...c, groupId: e.target.value } : c))}
                               >
@@ -465,8 +471,8 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                             ) : (
                               <div className="flex items-center gap-2">
                                 <div className={clsx(
-                                  "px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm border",
-                                  contact.groupId ? "bg-indigo-50 text-indigo-700 border-indigo-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                                  "px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm border transition-all",
+                                  contact.groupId ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/30" : "bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-100 dark:border-gray-700"
                                 )}>
                                   {groups.find(g => g.id === contact.groupId)?.name || 'No Group'}
                                 </div>
@@ -484,13 +490,13 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
         )}
 
         {step === 4 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-8 border-4 border-white shadow-xl">
-              <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-28 h-28 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mb-10 border-4 border-white dark:border-gray-800 shadow-2xl transition-colors">
+              <CheckCircle2 className="w-14 h-14 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-2xl font-black text-gray-900">Import Successful!</h3>
-            <p className="text-gray-500 mt-2 font-medium">
-              We've processed <span className="text-indigo-600 font-black">{pendingContacts.filter(c => c.selected).length}</span> contacts and added them to your groups.
+            <h3 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Import Successful!</h3>
+            <p className="text-gray-500 dark:text-gray-400 mt-3 font-bold max-w-sm mx-auto leading-relaxed">
+              We've processed <span className="text-indigo-600 dark:text-indigo-400 font-black">{pendingContacts.filter(c => c.selected).length}</span> contacts and added them to your groups successfully.
             </p>
           </div>
         )}

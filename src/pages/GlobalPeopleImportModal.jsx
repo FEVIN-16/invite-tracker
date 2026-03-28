@@ -140,18 +140,18 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
     >
       <div className="flex flex-col md:flex-row h-[500px] gap-6">
         {/* Sidebar: Groups */}
-        <div className="w-full md:w-56 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 pr-0 md:pr-4 overflow-hidden">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Your Groups</p>
+        <div className="w-full md:w-60 flex flex-col border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-900 pr-0 md:pr-4 overflow-hidden">
+          <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-4 pl-2">My Groups</p>
           <div className="flex-1 overflow-auto space-y-1">
             {groups.map(g => (
               <button
                 key={g.id}
                 onClick={() => setSelectedGroupId(g.id)}
                 className={clsx(
-                  "w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left",
+                  "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-left",
                   selectedGroupId === g.id 
-                    ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100/50" 
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                    ? "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 shadow-sm shadow-indigo-100/30" 
+                    : "text-gray-500 dark:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-900/50 hover:text-gray-700 dark:hover:text-gray-400"
                 )}
               >
                 <div 
@@ -171,16 +171,16 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search bar */}
           <div className="mb-4 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors group-focus-within:text-indigo-500" />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, phone or email..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+              className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-700"
             />
           </div>
 
-          <div className="flex-1 overflow-auto border border-gray-50 rounded-2xl">
+          <div className="flex-1 overflow-auto border border-gray-50 dark:border-gray-900 rounded-2xl bg-white dark:bg-gray-950 shadow-inner transition-colors">
             {isLoading ? (
               <div className="flex justify-center py-20"><Spinner /></div>
             ) : filtered.length === 0 ? (
@@ -191,13 +191,13 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
               />
             ) : (
               <div className="divide-y divide-gray-50">
-                <div className="bg-gray-50/50 px-4 py-2 flex items-center justify-between sticky top-0 z-10 backdrop-blur-sm">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <div className="bg-gray-50/80 dark:bg-gray-900/80 px-4 py-2.5 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md border-b border-gray-50 dark:border-gray-800">
+                  <span className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest">
                     Showing {filtered.length} people
                   </span>
                   <button 
                     onClick={toggleAll}
-                    className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors"
+                    className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
                   >
                     {selectedContactIds.length === filtered.length ? 'Deselect All' : 'Select All'}
                   </button>
@@ -206,8 +206,10 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
                   <label 
                     key={c.id} 
                     className={clsx(
-                      "flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors",
-                      selectedContactIds.includes(c.id) ? "bg-indigo-50/30" : "hover:bg-gray-50/50"
+                      "flex items-center gap-4 px-4 py-4 cursor-pointer transition-all border-l-4",
+                      selectedContactIds.includes(c.id) 
+                        ? "bg-indigo-50/40 dark:bg-indigo-900/10 border-indigo-500" 
+                        : "hover:bg-gray-50/50 dark:hover:bg-gray-900/30 border-transparent"
                     )}
                   >
                     <div className="relative">
@@ -218,17 +220,19 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
                         className="sr-only"
                       />
                       <div className={clsx(
-                        "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
-                        selectedContactIds.includes(c.id) ? "bg-indigo-600 border-indigo-600" : "bg-white border-gray-200"
+                        "w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all shadow-sm",
+                        selectedContactIds.includes(c.id) 
+                          ? "bg-indigo-600 border-indigo-600 scale-110 shadow-indigo-100 dark:shadow-none" 
+                          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                       )}>
-                        {selectedContactIds.includes(c.id) && <Check className="w-3.5 h-3.5 text-white" />}
+                        {selectedContactIds.includes(c.id) && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                       </div>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-gray-900 truncate">{c.name}</p>
-                      <div className="flex items-center gap-3 mt-0.5">
-                        {c.phone && <span className="text-[11px] text-gray-500 truncate">{c.phone}</span>}
-                        {c.email && <span className="text-[11px] text-gray-400 truncate">{c.email}</span>}
+                      <p className="text-sm font-black text-gray-900 dark:text-white truncate tracking-tight">{c.name}</p>
+                      <div className="flex items-center gap-3 mt-1 opacity-70">
+                        {c.phone && <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 truncate">{c.phone}</span>}
+                        {c.email && <span className="text-[11px] font-bold text-gray-400 dark:text-gray-600 truncate">{c.email}</span>}
                       </div>
                     </div>
                   </label>

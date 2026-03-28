@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, ArrowLeft, Plus, Trash2, Search, Edit2, Phone, Mail, StickyNote, X, Upload } from 'lucide-react';
+import { Users, ArrowLeft, Plus, Trash2, Search, Edit2, Phone, Mail, StickyNote, X, Upload, CheckSquare, Square } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { getGroupsByUser, getContactsByGroup, createContact, updateContact, deleteContact, bulkDeleteContacts } from '../db/contactsDb';
@@ -81,9 +81,9 @@ function ContactModal({ isOpen, onClose, onSuccess, contact, groupId }) {
           <Input label="Email" type="email" placeholder="name@example.com" value={form.email} onChange={set('email')} />
         </div>
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-gray-700">Identifier Note <span className="text-gray-400">(optional)</span></label>
+          <label className="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest pl-1">Identifier Note <span className="text-gray-300 dark:text-gray-800">(optional)</span></label>
           <textarea
-            className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none min-h-[72px] resize-none"
+            className="w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none min-h-[100px] resize-none transition-all"
             placeholder="A short note to identify this person, e.g. 'Priya's brother from Chennai'"
             value={form.identifier}
             onChange={set('identifier')}
@@ -165,27 +165,27 @@ export default function GlobalCategoryDetailPage() {
   if (isLoading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-950 overflow-hidden transition-colors">
       {/* Header */}
-      <div className="px-4 md:px-6 py-4 border-b border-gray-100">
+      <div className="px-4 md:px-6 py-6 border-b border-gray-100 dark:border-gray-800">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
-          <button onClick={() => navigate('/people')} className="hover:text-indigo-600 transition-colors">People</button>
-          <span>/</span>
-          <span className="font-semibold text-gray-800">{group?.name}</span>
+        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 dark:text-gray-600 mb-4 uppercase tracking-widest leading-none">
+          <button onClick={() => navigate('/people')} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">People</button>
+          <span className="text-gray-200 dark:text-gray-800">/</span>
+          <span className="text-gray-800 dark:text-gray-200">{group?.name}</span>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/people')}
-              className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+              className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm group"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{group?.name}</h1>
-              <p className="text-xs text-gray-500">{contacts.length} contacts</p>
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{group?.name}</h1>
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mt-1">{contacts.length} Total contacts</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -201,14 +201,14 @@ export default function GlobalCategoryDetailPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="px-4 md:px-6 py-3 bg-gray-50 border-b border-gray-100">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="px-4 md:px-6 py-4 bg-gray-50/50 dark:bg-gray-900/40 border-b border-gray-100 dark:border-gray-800 flex items-center">
+        <div className="relative max-w-sm w-full group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, phone or email..."
-            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+            placeholder="Search contacts..."
+            className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
           />
         </div>
       </div>
@@ -225,18 +225,25 @@ export default function GlobalCategoryDetailPage() {
             )}
           />
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {/* Table header */}
-            <div className="hidden md:grid grid-cols-[2rem_1fr_1fr_1fr_2fr_2.5rem] gap-4 px-6 py-2 bg-gray-50 text-[11px] font-black text-gray-400 uppercase tracking-widest sticky top-0 border-b border-gray-100 z-10">
-              <div>
-                <button onClick={toggleAll} className={clsx('p-0.5', selectedIds.length === filtered.length ? 'text-indigo-600' : 'text-gray-300')}>
-                  {selectedIds.length === filtered.length && filtered.length > 0 ? '☑' : '☐'}
+            {/* Table header */}
+            <div className="hidden md:grid grid-cols-[3rem_1.5fr_1.2fr_1.5fr_2fr_3rem] gap-4 px-6 py-2.5 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-md text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest sticky top-0 border-b border-gray-100 dark:border-gray-800 z-10 transition-colors">
+              <div className="flex justify-center">
+                <button 
+                  onClick={toggleAll} 
+                  className={clsx(
+                    'transition-colors p-1', 
+                    selectedIds.length === filtered.length && filtered.length > 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-300 dark:text-gray-700 hover:text-indigo-600'
+                  )}
+                >
+                  {selectedIds.length === filtered.length && filtered.length > 0 ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
                 </button>
               </div>
-              <div>Name</div>
-              <div>Phone</div>
-              <div>Email</div>
-              <div>Identifier Note</div>
+              <div className="flex items-center">Name</div>
+              <div className="flex items-center">Phone</div>
+              <div className="flex items-center">Email</div>
+              <div className="flex items-center">Identifier Note</div>
               <div />
             </div>
 
@@ -244,57 +251,67 @@ export default function GlobalCategoryDetailPage() {
               <div
                 key={c.id}
                 className={clsx(
-                  'group grid grid-cols-1 md:grid-cols-[2rem_1fr_1fr_1fr_2fr_2.5rem] gap-x-4 gap-y-1 px-4 md:px-6 py-3 md:py-2.5 items-center transition-colors',
-                  selectedIds.includes(c.id) ? 'bg-indigo-50/40' : 'hover:bg-gray-50'
+                  'group grid grid-cols-1 md:grid-cols-[3rem_1.5fr_1.2fr_1.5fr_2fr_3rem] gap-x-4 gap-y-1.5 px-4 md:px-6 py-4 md:py-3.5 items-center transition-all border-l-4',
+                  selectedIds.includes(c.id) 
+                    ? 'bg-indigo-50/40 dark:bg-indigo-900/10 border-indigo-500' 
+                    : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/40 border-transparent'
                 )}
+                onClick={() => toggleSelect(c.id)}
               >
                 {/* Checkbox */}
-                <div className="hidden md:block">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(c.id)}
-                    onChange={() => toggleSelect(c.id)}
-                    className="accent-indigo-600"
-                  />
+                <div className="hidden md:flex justify-center" onClick={e => e.stopPropagation()}>
+                  <button 
+                    onClick={() => toggleSelect(c.id)} 
+                    className={clsx(
+                      "p-1 transition-all",
+                      selectedIds.includes(c.id) 
+                        ? "text-indigo-600 dark:text-indigo-400" 
+                        : "text-gray-300 dark:text-gray-700 opacity-0 group-hover:opacity-100 hover:text-indigo-600"
+                    )}
+                  >
+                    {selectedIds.includes(c.id) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
+                  </button>
                 </div>
 
                 {/* Name */}
-                <div className="font-semibold text-gray-900">{c.name}</div>
+                <div className="font-black text-gray-900 dark:text-gray-100 truncate">{c.name}</div>
 
                 {/* Phone */}
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 font-bold">
                   {c.phone ? (
-                    <><Phone className="w-3.5 h-3.5 text-gray-300 shrink-0 hidden md:block" /><a href={`tel:${c.phone}`} className="hover:text-indigo-600">{c.phone}</a></>
-                  ) : <span className="text-gray-300">—</span>}
+                    <><Phone className="w-4 h-4 text-gray-300 dark:text-gray-700 shrink-0 hidden md:block" /><a href={`tel:${c.phone}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" onClick={e => e.stopPropagation()}>{c.phone}</a></>
+                  ) : <span className="text-gray-300 dark:text-gray-800 font-medium">—</span>}
                 </div>
 
                 {/* Email */}
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 font-bold min-w-0">
                   {c.email ? (
-                    <><Mail className="w-3.5 h-3.5 text-gray-300 shrink-0 hidden md:block" /><a href={`mailto:${c.email}`} className="hover:text-indigo-600 truncate">{c.email}</a></>
-                  ) : <span className="text-gray-300">—</span>}
+                    <><Mail className="w-4 h-4 text-gray-300 dark:text-gray-700 shrink-0 hidden md:block" /><a href={`mailto:${c.email}`} className="hover:text-indigo-600 dark:hover:text-indigo-400 truncate transition-colors" onClick={e => e.stopPropagation()}>{c.email}</a></>
+                  ) : <span className="text-gray-300 dark:text-gray-800 font-medium">—</span>}
                 </div>
 
                 {/* Identifier */}
-                <div className="flex items-start gap-1.5 text-sm text-gray-500 italic">
+                <div className="flex items-start gap-2 text-xs text-gray-400 dark:text-gray-600 italic font-medium leading-relaxed">
                   {c.identifier ? (
-                    <><StickyNote className="w-3.5 h-3.5 text-gray-300 shrink-0 mt-0.5 hidden md:block" /><span className="line-clamp-2">{c.identifier}</span></>
-                  ) : <span className="text-gray-300">—</span>}
+                    <><StickyNote className="w-4 h-4 text-gray-300 dark:text-gray-800 shrink-0 mt-0.5 hidden md:block" /><span className="line-clamp-2">{c.identifier}</span></>
+                  ) : <span className="text-gray-300 dark:text-gray-800">—</span>}
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity justify-end">
+                <div className="flex gap-2.5 md:opacity-0 md:group-hover:opacity-100 transition-all justify-end" onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => { setEditingContact(c); setIsModalOpen(true); }}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                    className="p-2 rounded-xl text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-md border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+                    title="Edit Contact"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeletingContact(c)}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                    className="p-2 rounded-xl text-gray-400 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-md border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
+                    title="Delete Contact"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

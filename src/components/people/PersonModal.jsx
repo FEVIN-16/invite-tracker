@@ -106,9 +106,9 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
             if (col.type === 'textarea') {
               return (
                 <div key={col.id} className="md:col-span-2 space-y-1.5">
-                  <label className="text-sm font-bold text-gray-700">{col.label}</label>
+                  <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{col.label}</label>
                   <textarea
-                    className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all min-h-[80px] disabled:bg-gray-50 disabled:text-gray-400"
+                    className="w-full rounded-xl border border-gray-300 dark:border-gray-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all min-h-[80px] bg-white dark:bg-gray-900 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-gray-950 disabled:text-gray-400 dark:disabled:text-gray-600"
                     value={val || ''}
                     onChange={e => handleFieldChange(col.id, e.target.value)}
                     placeholder={`Enter ${col.label.toLowerCase()}...`}
@@ -147,7 +147,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
             if (col.type === 'radio') {
               return (
                 <div key={col.id} className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">{col.label}</label>
+                  <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{col.label}</label>
                   <div className="flex flex-wrap gap-2">
                     {col.options.map(opt => (
                       <button
@@ -158,8 +158,8 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
                         className={clsx(
                           "px-4 py-1.5 rounded-full text-xs font-bold border transition-all",
                           val === opt 
-                            ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100" 
-                            : "bg-white border-gray-200 text-gray-500 hover:border-indigo-300"
+                            ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-100 dark:shadow-none" 
+                            : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-indigo-900"
                         )}
                       >
                         {opt}
@@ -174,7 +174,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
               const selected = val || [];
               return (
                 <div key={col.id} className="md:col-span-2 space-y-2">
-                  <label className="text-sm font-bold text-gray-700">{col.label}</label>
+                  <label className="text-sm font-bold text-gray-700 dark:text-gray-300">{col.label}</label>
                   <div className="flex flex-wrap gap-2">
                     {col.options.map(opt => (
                       <button
@@ -185,8 +185,8 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
                         className={clsx(
                           "px-4 py-1.5 rounded-full text-xs font-bold border transition-all",
                           selected.includes(opt) 
-                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100" 
-                            : "bg-white border-gray-200 text-gray-500 hover:border-emerald-300"
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100 dark:shadow-none" 
+                            : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:border-emerald-300 dark:hover:border-emerald-900"
                         )}
                       >
                         {opt}

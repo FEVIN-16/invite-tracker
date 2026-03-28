@@ -120,14 +120,14 @@ export function GlobalExcelImportModal({ isOpen, onClose, onSuccess, groupId }) 
         {step === 1 && (
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-gray-200 rounded-2xl p-12 flex flex-col items-center justify-center gap-4 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer transition-all group"
+            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-16 flex flex-col items-center justify-center gap-6 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/10 cursor-pointer transition-all group overflow-hidden relative"
           >
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-              <Upload className="w-8 h-8 text-gray-400 group-hover:text-indigo-600" />
+            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 transition-all shadow-inner">
+              <Upload className="w-10 h-10 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
             </div>
             <div className="text-center">
-              <p className="text-base font-bold text-gray-900">Click to upload or drag & drop</p>
-              <p className="text-sm text-gray-500 mt-1">Excel (.xlsx, .xls) or CSV files supported</p>
+              <p className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Select People File</p>
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 mt-2 uppercase tracking-widest leading-loose">Excel (.xlsx) or CSV files supported</p>
             </div>
             <input 
               type="file" 
@@ -141,29 +141,34 @@ export function GlobalExcelImportModal({ isOpen, onClose, onSuccess, groupId }) 
 
         {step === 2 && (
           <div className="space-y-6">
-            <div className="bg-indigo-50 p-4 rounded-xl flex gap-3">
-              <FileType className="w-5 h-5 text-indigo-600" />
+            <div className="bg-indigo-50/50 dark:bg-indigo-900/10 p-5 rounded-2xl flex gap-4 border border-indigo-100 dark:border-indigo-900/20 items-center">
+              <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-50 dark:border-indigo-900/20 shrink-0">
+                <FileType className="w-6 h-6" />
+              </div>
               <div>
-                <p className="text-sm font-semibold text-indigo-900">{file?.name}</p>
-                <p className="text-xs text-indigo-700">{rawRows.length - 1} contacts detected</p>
+                <p className="text-sm font-black text-indigo-900 dark:text-indigo-300 truncate">{file?.name}</p>
+                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{rawRows.length - 1} contacts detected</p>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2">Map Columns</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-5 bg-indigo-600 rounded-full" />
+                <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-widest">Map Columns</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                 {TARGET_FIELDS.map(field => (
                   <div key={field.id} className="contents">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Target Field</label>
-                      <div className="h-10 flex items-center text-sm font-medium text-gray-900">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">Target Field</label>
+                      <div className="h-10 flex items-center text-sm font-black text-gray-900 dark:text-gray-200">
                         {field.label} {field.required && <span className="text-red-500 ml-1">*</span>}
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Excel Column</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest px-1">Excel Column</label>
                       <select 
-                        className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                        className="w-full h-11 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 text-xs font-black text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
                         value={mapping[field.id]}
                         onChange={e => setMapping({ ...mapping, [field.id]: parseInt(e.target.value) })}
                       >
@@ -179,12 +184,12 @@ export function GlobalExcelImportModal({ isOpen, onClose, onSuccess, groupId }) 
         )}
 
         {step === 3 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-24 h-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mb-8 border-4 border-white dark:border-gray-800 shadow-xl">
+              <CheckCircle2 className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900">Import Successful!</h3>
-            <p className="text-gray-500 mt-2">All contacts have been added to this group.</p>
+            <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Import Successful!</h3>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">All contacts have been added successfully.</p>
           </div>
         )}
       </div>

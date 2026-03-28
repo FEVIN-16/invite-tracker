@@ -48,15 +48,15 @@ export default function CreateEventPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-2xl mx-auto">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-6 group">
+    <div className="p-4 md:p-8 max-w-2xl mx-auto transition-colors">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white mb-8 group">
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Back
       </button>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-1">Create New Event</h1>
-        <p className="text-sm text-gray-500 mb-8">Set up your event's basic information</p>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg dark:shadow-2xl border border-gray-100 dark:border-gray-800 p-6 md:p-10">
+        <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1">Create New Event</h1>
+        <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-10 uppercase tracking-widest">Set up your event's basic information</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <Input
@@ -94,12 +94,12 @@ export default function CreateEventPage() {
             onChange={handleChange}
           />
 
-          <div className="flex flex-col gap-1">
-             <label className="text-sm font-medium text-gray-700">Description (Optional)</label>
+          <div className="flex flex-col gap-1.5">
+             <label className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest pl-1">Description (Optional)</label>
              <textarea
                name="description"
-               rows={3}
-               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+               rows={4}
+               className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder:text-gray-400 dark:placeholder:text-gray-600"
                placeholder="Brief notes about the event..."
                value={form.description}
                onChange={handleChange}

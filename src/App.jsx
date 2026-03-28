@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { initDB } from './db/index';
 import { useAuthStore } from './store/authStore';
+import { useUIStore } from './store/uiStore';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { OfflineBanner } from './components/ui/OfflineBanner';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -26,6 +27,15 @@ import GlobalCategoryDetailPage from './pages/GlobalCategoryDetailPage';
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore();
+  const { theme } = useUIStore();
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   useEffect(() => {
     const restoreSession = async () => {

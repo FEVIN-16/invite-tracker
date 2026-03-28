@@ -27,12 +27,16 @@ export function Tooltip({ children, content, position = 'top', delay = 0 }) {
       {children}
       {isVisible && content && (
         <div className={clsx(
-          "absolute z-[9999] px-2.5 py-1.5 text-[10px] font-black tracking-wider text-white bg-gray-900 rounded-lg whitespace-nowrap shadow-2xl pointer-events-none transition-all duration-200 uppercase",
+          "absolute z-[9999] px-2.5 py-1.5 text-[10px] font-black tracking-wider text-white bg-gray-900 dark:bg-black rounded-lg whitespace-nowrap shadow-2xl pointer-events-none transition-all duration-200 uppercase",
           positions[position]
         )}>
           {content}
           <div className={clsx(
-            "absolute border-4 border-transparent",
+            "absolute border-4 border-transparent dark:border-transparent",
+            position === 'top' && "border-t-gray-900 dark:border-t-black",
+            position === 'bottom' && "border-b-gray-900 dark:border-b-black",
+            position === 'left' && "border-l-gray-900 dark:border-l-black",
+            position === 'right' && "border-r-gray-900 dark:border-r-black",
             arrowPositions[position]
           )} />
         </div>

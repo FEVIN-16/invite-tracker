@@ -135,14 +135,14 @@ export function PeopleTable({
     <div className="select-none min-w-full">
       <table className="w-full border-collapse table-fixed">
         <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
+          <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             {/* Selection Column - Always Frozen */}
-            <th className="w-12 px-4 py-3 sticky top-0 left-0 z-40 bg-gray-50 border-r border-gray-100">
+            <th className="w-12 px-4 py-3 sticky top-0 left-0 z-40 bg-gray-50 dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800">
               <button 
                 onClick={toggleSelectAll} 
                 className={clsx(
                   "p-1 transition-all",
-                  allSelected ? "text-indigo-600" : "text-gray-300 hover:text-indigo-600"
+                  allSelected ? "text-indigo-600 dark:text-indigo-400" : "text-gray-300 dark:text-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400"
                 )}
               >
                 {allSelected ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
@@ -153,7 +153,7 @@ export function PeopleTable({
             {isNameVisible && (
               <th 
                 className={clsx(
-                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-r border-gray-200 relative group/h cursor-pointer hover:bg-gray-100 transition-colors sticky top-0",
+                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 relative group/h cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors sticky top-0",
                   isNameFrozen ? "z-40" : "z-30"
                 )}
                 style={{ 
@@ -167,7 +167,7 @@ export function PeopleTable({
                 </div>
                 <div 
                   onMouseDown={(e) => onStartResize(e, 'system-name', nameWidth || 180)}
-                  className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-indigo-300 transition-colors"
+                  className="absolute right-0 top-0 bottom-0 w-1 px-0.5 cursor-col-resize hover:bg-indigo-300 dark:hover:bg-indigo-600 transition-colors"
                 />
               </th>
             )}
@@ -177,7 +177,7 @@ export function PeopleTable({
               <th
                 key={col.id}
                 className={clsx(
-                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-r border-gray-100 last:border-r-0 relative group/h overflow-hidden cursor-pointer hover:bg-gray-100 transition-colors sticky top-0",
+                  "px-4 py-3 text-left text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 last:border-r-0 relative group/h overflow-hidden cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors sticky top-0",
                   col.isFrozen ? "z-40" : "z-30"
                 )}
                 style={{ 
@@ -191,7 +191,7 @@ export function PeopleTable({
                 </div>
                 <div 
                   onMouseDown={(e) => onStartResize(e, col.id, col.width)}
-                  className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-indigo-300 transition-colors"
+                  className="absolute right-0 top-0 bottom-0 w-1 px-0.5 cursor-col-resize hover:bg-indigo-300 dark:hover:bg-indigo-600 transition-colors"
                 />
               </th>
             ))}
@@ -199,33 +199,33 @@ export function PeopleTable({
             {/* Action Column - Configurable */}
             {showActions && (
               <th className={clsx(
-                "px-4 py-3 text-right text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 border-l border-gray-100 w-28 sticky top-0",
-                freezeActions ? "right-0 z-40 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)]" : "z-30"
+                "px-4 py-3 text-right text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50 dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800 w-28 sticky top-0",
+                freezeActions ? "right-0 z-40 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none" : "z-30"
               )}>
                 Action
               </th>
             )}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
           {people.map((person) => (
             <tr
               key={person.id}
               className={clsx(
                 'group transition-colors',
-                selectedIds.includes(person.id) ? 'bg-indigo-50/40' : 'hover:bg-indigo-50/10'
+                selectedIds.includes(person.id) ? 'bg-indigo-50/40 dark:bg-indigo-900/10' : 'hover:bg-gray-50/50 dark:hover:bg-gray-900/40'
               )}
             >
               {/* Selection Checkbox - Always Frozen */}
-              <td className="px-4 py-2.5 sticky left-0 z-20 bg-inherit group-hover:bg-indigo-50/10 border-r border-gray-50 flex items-center justify-center">
-                <div className="absolute inset-0 bg-white -z-10" />
+              <td className="px-4 py-2.5 sticky left-0 z-20 border-r border-gray-100 dark:border-gray-800 flex items-center justify-center">
+                <div className="absolute inset-0 bg-white dark:bg-gray-950 -z-10" />
                 <button 
                   onClick={() => toggleSelect(person.id)} 
                   className={clsx(
                     "p-1 transition-all",
                     selectedIds.includes(person.id) 
-                      ? "text-indigo-600 opacity-100" 
-                      : "text-gray-300 opacity-0 group-hover:opacity-100 hover:text-indigo-600"
+                      ? "text-indigo-600 dark:text-indigo-400 opacity-100" 
+                      : "text-gray-300 dark:text-gray-700 opacity-0 group-hover:opacity-100 hover:text-indigo-600 dark:hover:text-indigo-400"
                   )}
                 >
                   {selectedIds.includes(person.id) ? <CheckSquare className="w-5 h-5" /> : <Square className="w-5 h-5" />}
@@ -236,12 +236,12 @@ export function PeopleTable({
               {isNameVisible && (
                 <td 
                   className={clsx(
-                    "px-4 py-2 group-hover:bg-inherit border-r border-gray-100 font-bold text-gray-900 overflow-hidden",
+                    "px-4 py-2 border-r border-gray-100 dark:border-gray-800 font-bold text-gray-900 dark:text-white overflow-hidden transition-colors",
                     isNameFrozen && "sticky z-20"
                   )}
                   style={{ left: isNameFrozen ? columnOffsets['name'] : undefined }}
                 >
-                  <div className="absolute inset-0 bg-white -z-10" />
+                  <div className="absolute inset-0 bg-white dark:bg-gray-950 -z-10" />
                   <InlineCell
                     col={{ id: 'name', type: 'text', label: 'Name' }}
                     value={person.name}
@@ -256,12 +256,12 @@ export function PeopleTable({
                 <td 
                   key={col.id} 
                   className={clsx(
-                    "px-4 py-2 border-r border-gray-50 last:border-r-0 overflow-hidden",
+                    "px-4 py-2 border-r border-gray-100 dark:border-gray-800 last:border-r-0 overflow-hidden transition-colors",
                     col.isFrozen && "sticky z-20"
                   )}
                   style={{ left: col.isFrozen ? columnOffsets[col.id] : undefined }}
                 >
-                  <div className="absolute inset-0 bg-white -z-10" />
+                  <div className="absolute inset-0 bg-white dark:bg-gray-950 -z-10" />
                   <InlineCell
                     col={col}
                     value={person.dynamicFields?.[col.id]}
@@ -274,17 +274,17 @@ export function PeopleTable({
               {/* Actions - Configurable */}
               {showActions && (
                 <td className={clsx(
-                  "px-3 py-2 bg-inherit border-l border-gray-100",
-                  freezeActions && "sticky right-0 z-20 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)]"
+                  "px-3 py-2 border-l border-gray-100 dark:border-gray-800",
+                  freezeActions && "sticky right-0 z-20 border-l-2 shadow-[-4px_0_10px_-4px_rgba(0,0,0,0.05)] dark:shadow-none"
                 )}>
-                  <div className="absolute inset-0 bg-white -z-10" />
+                  <div className="absolute inset-0 bg-white dark:bg-gray-950 -z-10" />
                   <div className="flex justify-end gap-1 transition-opacity">
                     <Tooltip content={person.excludeFromExport ? "Excluded from Export" : "Included in Export"} position="left">
                       <button
                         onClick={() => onToggleRow(person.id, 'excludeFromExport')}
                         className={clsx(
                           "p-1.5 rounded-lg transition-all",
-                          person.excludeFromExport ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                          person.excludeFromExport ? "text-red-500 bg-red-50 dark:bg-red-900/20" : "text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-gray-800"
                         )}
                       >
                         {person.excludeFromExport ? <Ban className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
@@ -296,7 +296,7 @@ export function PeopleTable({
                         onClick={() => onToggleRow(person.id, 'isLocked')}
                         className={clsx(
                           "p-1.5 rounded-lg transition-all",
-                          person.isLocked ? "text-amber-500 bg-amber-50" : "text-gray-400 hover:text-indigo-600 hover:bg-white"
+                          person.isLocked ? "text-amber-500 bg-amber-50 dark:bg-amber-900/20" : "text-gray-400 dark:text-gray-600 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-gray-800"
                         )}
                       >
                         {person.isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}

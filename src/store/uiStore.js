@@ -5,6 +5,7 @@ export const useUIStore = create((set, get) => ({
   toasts: [],
   isGlobalLoading: false,
   isToolbarVisible: true,
+  theme: localStorage.getItem('theme') || 'light',
 
   addToast: (message, type = 'success') => {
     const id = uuid();
@@ -17,4 +18,15 @@ export const useUIStore = create((set, get) => ({
   setGlobalLoading: (val) => set({ isGlobalLoading: val }),
   
   setIsToolbarVisible: (val) => set({ isToolbarVisible: val }),
+
+  toggleTheme: () => {
+    const newTheme = get().theme === 'light' ? 'dark' : 'light';
+    set({ theme: newTheme });
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  },
 }));

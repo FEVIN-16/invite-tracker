@@ -15,7 +15,7 @@ export function Select({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <label htmlFor={selectId} className="text-sm font-medium text-gray-700">
+        <label htmlFor={selectId} className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest pl-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -24,19 +24,20 @@ export function Select({
         value={value}
         onChange={onChange}
         className={clsx(
-          'w-full rounded-lg border px-3 py-2 text-sm bg-white',
+          'w-full rounded-xl border px-4 py-2 text-sm transition-all',
           'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-          'min-h-[40px] md:min-h-[44px]',
-          error ? 'border-red-400' : 'border-gray-300'
+          'min-h-[44px]',
+          'bg-white dark:bg-gray-800 text-gray-900 dark:text-white',
+          error ? 'border-red-400' : 'border-gray-200 dark:border-gray-700'
         )}
         {...props}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value} className="dark:bg-gray-800">{opt.label}</option>
         ))}
       </select>
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 text-xs pl-1 font-bold">{error}</p>}
     </div>
   );
 }

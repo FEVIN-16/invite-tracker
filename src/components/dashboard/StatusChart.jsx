@@ -8,8 +8,8 @@ const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#3B82F6', '#EC4899', '#8B5CF6'
 export function StatusChart({ data, title, hideHeader }) {
   if (!data || data.length === 0) {
     return (
-      <div className={clsx("h-[400px] flex flex-col", !hideHeader && "bg-white rounded-2xl border border-gray-200 p-6")}>
-        {!hideHeader && <h3 className="text-base font-bold text-gray-900 mb-4">{title} Breakdown</h3>}
+      <div className={clsx("h-[400px] flex flex-col", !hideHeader && "bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-lg")}>
+        {!hideHeader && <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight mb-4">{title} Breakdown</h3>}
         <div className="flex-1 flex items-center justify-center">
           <EmptyState 
             icon={PieChartIcon} 
@@ -24,11 +24,11 @@ export function StatusChart({ data, title, hideHeader }) {
   const chartData = data.filter(d => d.value > 0);
 
   return (
-    <div className={clsx("h-[400px]", !hideHeader && "bg-white rounded-2xl border border-gray-200 p-6")}>
+    <div className={clsx("h-[400px]", !hideHeader && "bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-lg")}>
       {!hideHeader && (
         <>
-          <h3 className="text-base font-bold text-gray-900 mb-1">{title} Breakdown</h3>
-          <p className="text-xs text-gray-400 mb-6">Distribution of guest responses</p>
+          <h3 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1">{title} Breakdown</h3>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-8 uppercase tracking-widest">Distribution of responses</p>
         </>
       )}
       
@@ -49,9 +49,18 @@ export function StatusChart({ data, title, hideHeader }) {
               ))}
             </Pie>
             <Tooltip 
-              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+              contentStyle={{ 
+                borderRadius: '16px', 
+                border: 'none', 
+                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)',
+                backgroundColor: 'var(--tooltip-bg, #111827)',
+                color: '#fff',
+                fontWeight: '900',
+                padding: '12px'
+              }}
+              itemStyle={{ color: '#fff' }}
             />
-            <Legend verticalAlign="bottom" height={36} iconType="circle" />
+            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '11px', fontWeight: '900', textTransform: 'uppercase' }} />
           </PieChart>
         </ResponsiveContainer>
       </div>

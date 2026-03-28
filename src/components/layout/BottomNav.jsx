@@ -18,7 +18,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex z-40 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex z-40 md:hidden transition-colors">
         {tabs.map(tab => (
           <NavLink
             key={tab.label}
@@ -27,7 +27,7 @@ export function BottomNav() {
             className={({ isActive }) =>
               clsx(
                 'flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-xs font-bold transition-colors',
-                isActive ? 'text-indigo-600' : 'text-gray-400'
+                isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
               )
             }
           >
@@ -37,7 +37,7 @@ export function BottomNav() {
         ))}
         <button
           onClick={() => setShowMore(true)}
-          className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-xs font-bold text-gray-400"
+          className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
         >
           <MoreHorizontal className="w-5 h-5" />
           <span>More</span>
@@ -46,17 +46,22 @@ export function BottomNav() {
 
       {showMore && (
         <div className="fixed inset-0 z-50 flex items-end md:hidden" onClick={() => setShowMore(false)}>
-          <div className="w-full bg-white rounded-t-2xl p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-            <div className="w-10 h-1 bg-gray-200 rounded mx-auto mb-4" />
-            <div className="mb-4">
-              <p className="text-xs text-gray-400 font-medium">Signed in as</p>
-              <p className="font-bold text-gray-800">{user?.displayName}</p>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
+          <div className="relative w-full bg-white dark:bg-gray-900 rounded-t-2xl p-6 shadow-2xl border-t border-gray-100 dark:border-gray-800" onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-gray-200 dark:bg-gray-800 rounded mx-auto mb-6" />
+            <div className="mb-6">
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Signed in as</p>
+              <p className="font-black text-gray-900 dark:text-white text-lg">{user?.displayName}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">@{user?.username}</p>
             </div>
             <button
-              className="w-full text-left text-sm text-red-500 font-bold py-3 border-t border-gray-100 flex items-center gap-2"
+              className="w-full text-left font-black text-sm text-red-500 dark:text-red-400 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3 transition-colors hover:text-red-600 dark:hover:text-red-300"
               onClick={() => { setShowMore(false); setShowSignOut(true); }}
             >
-              <LogOut className="w-4 h-4" /> Sign Out
+              <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                <LogOut className="w-4 h-4" />
+              </div>
+              Sign Out
             </button>
           </div>
         </div>

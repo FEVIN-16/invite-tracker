@@ -3,10 +3,30 @@ import { CheckCircle, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 
 const config = {
-  success: { icon: CheckCircle, bg: 'bg-green-50 border-green-200', text: 'text-green-800', icon_color: 'text-green-500' },
-  error: { icon: AlertCircle, bg: 'bg-red-50 border-red-200', text: 'text-red-800', icon_color: 'text-red-500' },
-  warning: { icon: AlertTriangle, bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', icon_color: 'text-amber-500' },
-  info: { icon: Info, bg: 'bg-blue-50 border-blue-200', text: 'text-blue-800', icon_color: 'text-blue-500' },
+  success: { 
+    icon: CheckCircle, 
+    bg: 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/20', 
+    text: 'text-green-800 dark:text-green-300', 
+    icon_color: 'text-green-500' 
+  },
+  error: { 
+    icon: AlertCircle, 
+    bg: 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/20', 
+    text: 'text-red-800 dark:text-red-300', 
+    icon_color: 'text-red-500' 
+  },
+  warning: { 
+    icon: AlertTriangle, 
+    bg: 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/20', 
+    text: 'text-amber-800 dark:text-amber-300', 
+    icon_color: 'text-amber-500' 
+  },
+  info: { 
+    icon: Info, 
+    bg: 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/20', 
+    text: 'text-blue-800 dark:text-blue-300', 
+    icon_color: 'text-blue-500' 
+  },
 };
 
 export function Toast({ toast }) {
