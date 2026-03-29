@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid3x3, Users, Search, Tag } from 'lucide-react';
+import { Grid3x3, Users, Search, Tag, Plus } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { getEventsByUser } from '../db/eventsDb';
 import { initDB } from '../db/index';
+import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
 
@@ -59,7 +60,16 @@ export default function GlobalCategoriesPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Grid3x3} heading="No categories found" subtext="Create categories inside an event first." />
+        <EmptyState 
+          icon={Grid3x3} 
+          heading="No categories found" 
+          subtext={search ? "Try a different search term" : "Create categories inside an event first to see them here."} 
+          actions={!search && (
+            <Button icon={Plus} onClick={() => navigate('/events')}>
+              Go to My Events
+            </Button>
+          )}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map(cat => (

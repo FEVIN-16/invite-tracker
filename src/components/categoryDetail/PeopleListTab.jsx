@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
 import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
-import { getColumnsByCategory, updateColumn } from '../../db/columnsDb';
+import { getColumnsByCategory, updateColumn, createColumn } from '../../db/columnsDb';
 import { validateEmail, validatePhone } from '../../utils/validation';
 import { useUIStore } from '../../store/uiStore';
 import { Button } from '../ui/Button';
@@ -262,6 +262,7 @@ export function PeopleListTab({ eventId, categoryId }) {
   }, []);
 
   async function handleBulkDelete() {
+
     try {
       await bulkDeletePeople(selectedIds);
       addToast(`Deleted ${selectedIds.length} people`);
@@ -338,7 +339,10 @@ export function PeopleListTab({ eventId, categoryId }) {
                   <span className="hidden lg:inline text-xs">Export</span>
                 </Button>
               </Tooltip>
+
               <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>
+
+
                 <span className="hidden sm:inline">Add Person</span>
               </Button>
             </div>

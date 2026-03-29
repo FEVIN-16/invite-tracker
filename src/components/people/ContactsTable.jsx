@@ -87,7 +87,6 @@ export function ContactsTable({
     { id: 'phone', label: 'Phone', type: 'phone' },
     { id: 'email', label: 'Email', type: 'email' },
     { id: 'notes', label: 'Notes', type: 'textarea' },
-    { id: 'createdAt', label: 'Date Added', type: 'date', readOnly: true },
   ];
 
   // ── Sticky Stacking Logic ──────────────────────────────────────────────────

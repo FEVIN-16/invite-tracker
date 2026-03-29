@@ -16,7 +16,8 @@ import {
   Send,
   Upload,
   Copy,
-  Check
+  Check,
+  Smartphone
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
@@ -320,7 +321,46 @@ export default function GlobalCategoryDetailPage() {
     }
   };
 
+  const handleContactPicker = async () => {
+    if (!('contacts' in navigator && 'select' in navigator.contacts)) {
+      addToast('Contact picker not supported on this device', 'warning');
+      return;
+    }
+
+    try {
+      const props = ['name', 'tel', 'email'];
+      const opts = { multiple: true };
+      const selectedContacts = await navigator.contacts.select(props, opts);
+
+      if (!selectedContacts.length) return;
+
+      for (const contact of selectedContacts) {
+        const data = {
+          id: uuid(),
+          groupId,
+          userId: user.id,
+          name: contact.name?.[0] || 'Unknown',
+          phone: (contact.tel?.[0] || '').replace(/\s+/g, ''),
+          email: contact.email?.[0] || '',
+          identifier: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await createContact(data);
+      }
+
+      addToast(`Imported ${selectedContacts.length} contacts`);
+      loadData();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Contact picker error:', err);
+        addToast('Failed to import contacts', 'error');
+      }
+    }
+  };
+
   function toggleSelect(id) {
+
     setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
   function toggleAll() {
@@ -378,6 +418,21 @@ export default function GlobalCategoryDetailPage() {
                 Delete ({selectedIds.length})
               </Button>
             )}
+            
+            {/* Device Contacts Import */}
+            <Tooltip content={!('contacts' in navigator) ? "Device contacts require a Secure Context (HTTPS) and a supported mobile browser." : "Import from device contacts"} position="bottom">
+              <div className="flex">
+                <Button 
+                  variant="secondary" 
+                  icon={Smartphone} 
+                  onClick={handleContactPicker}
+                  disabled={!('contacts' in navigator)}
+                >
+                  <span className="hidden lg:inline text-xs">Device Contacts</span>
+                </Button>
+              </div>
+            </Tooltip>
+
             <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
             <Button icon={Plus} onClick={() => { setEditingContact(null); setIsModalOpen(true); }}>Add Contact</Button>
           </div>

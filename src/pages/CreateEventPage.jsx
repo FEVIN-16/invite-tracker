@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
+import { useEventStore } from '../store/eventStore';
 import { createEvent } from '../db/eventsDb';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -11,8 +12,9 @@ import { EVENT_TYPES } from '../utils/constants';
 import { ArrowLeft } from 'lucide-react';
 
 export default function CreateEventPage() {
-  const user = useAuthStore(state => state.user);
+  const { user } = useAuthStore();
   const { addToast } = useUIStore();
+  const { setCurrentEvent } = useEventStore();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ title: '', type: 'marriage', date: '', location: '', description: '' });
@@ -38,8 +40,9 @@ export default function CreateEventPage() {
         createdAt: new Date().toISOString(),
       };
       await createEvent(event);
+      setCurrentEvent(event);
       addToast('Event created successfully');
-      navigate(`/events/${event.id}/dashboard`);
+      navigate(`/events/${event.id}/categories`);
     } catch {
       addToast('Error creating event', 'error');
     } finally {

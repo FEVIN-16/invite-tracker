@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus, Grid3x3, Search, ChevronRight, ArrowLeft, Calendar,
-  Tag, Users, Edit2, BarChart2, CheckCircle, Clock
+  Tag, Users, Edit2, BarChart2, CheckCircle, Clock, LayoutGrid
 } from 'lucide-react';
 import { getCategoriesByEvent, deleteCategory } from '../db/categoriesDb';
 import { getEventById } from '../db/eventsDb';
@@ -174,7 +174,11 @@ export default function CategoriesPage() {
               Edit Event
             </Button>
             {activeTab === 'categories' && (
-              <Button icon={Plus} onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}>
+              <Button 
+                icon={Plus} 
+                onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
+                className="shadow-lg shadow-indigo-500/20"
+              >
                 Add Invite Category
               </Button>
             )}
@@ -368,7 +372,12 @@ export default function CategoriesPage() {
                 heading={searchTerm ? 'No categories matched' : 'No invite categories yet'}
                 subtext="Create invite categories like 'Friends', 'Family', or 'Colleagues' to organise your invite list."
                 actions={!searchTerm && (
-                  <Button icon={Plus} onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}>
+                  <Button 
+                    icon={Plus} 
+                    size="lg"
+                    onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
+                    className="shadow-xl shadow-indigo-500/20 px-8 py-6 text-sm"
+                  >
                     Add First Invite Category
                   </Button>
                 )}

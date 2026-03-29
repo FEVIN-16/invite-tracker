@@ -78,7 +78,6 @@ export default function App() {
             <Route path="/events" element={<EventsListPage />} />
             <Route path="/events/new" element={<CreateEventPage />} />
             <Route path="/events/:eventId/edit" element={<EditEventPage />} />
-            <Route path="/events/:eventId/dashboard" element={<Navigate to="../categories" replace />} />
             <Route path="/dashboard" element={<GlobalDashboardPage />} />
             <Route path="/categories" element={<GlobalCategoriesPage />} />
             <Route path="/events/:eventId/categories" element={<CategoriesPage />} />
