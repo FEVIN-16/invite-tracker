@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
 import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
-import { getColumnsByCategory } from '../../db/columnsDb';
+import { getColumnsByCategory, updateColumn } from '../../db/columnsDb';
 import { validateEmail, validatePhone } from '../../utils/validation';
 import { useUIStore } from '../../store/uiStore';
 import { Button } from '../ui/Button';
@@ -23,6 +23,7 @@ export function PeopleListTab({ eventId, categoryId }) {
   const [people, setPeople] = useState([]);
   const [columns, setColumns] = useState([]);
   const [nameWidth, setNameWidth] = useState(180);
+  const [isNameFrozen, setIsNameFrozen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,25 +37,75 @@ export function PeopleListTab({ eventId, categoryId }) {
   const [editingPerson, setEditingPerson] = useState(null);
   const [showBulkDelete, setShowBulkDelete] = useState(false);
 
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
+    if (!categoryId) return;
+    setIsLoading(true);
     try {
-      const [dbCols, guests] = await Promise.all([
-        getColumnsByCategory(categoryId),
-        getPeopleByCategory(categoryId)
-      ]);
-      setColumns(dbCols);
+      const dbCols = await getColumnsByCategory(categoryId);
+      const guests = await getPeopleByCategory(categoryId);
+
+      // Handle system columns sync (ensure they exist in DB)
+      let updatedCols = [...dbCols];
+      let needsUpdate = false;
+
+      let nameCol = updatedCols.find(c => c.fieldKey === 'name' || c.id === `system-name-${categoryId}`);
+      if (!nameCol) {
+        nameCol = {
+          id: `system-name-${categoryId}`,
+          categoryId,
+          eventId,
+          userId: (await import('../../store/authStore')).useAuthStore.getState().user.id,
+          label: 'Name',
+          type: 'text',
+          isSystem: true,
+          isFrozen: true,
+          isVisible: true,
+          fieldKey: 'name',
+          sortOrder: -100,
+          width: 200,
+          createdAt: new Date().toISOString(),
+        };
+        await createColumn(nameCol);
+        updatedCols.push(nameCol);
+      }
+
+      let actionCol = updatedCols.find(c => c.fieldKey === 'actions' || c.id === `system-actions-${categoryId}`);
+      if (!actionCol) {
+        actionCol = {
+          id: `system-actions-${categoryId}`,
+          categoryId,
+          eventId,
+          userId: (await import('../../store/authStore')).useAuthStore.getState().user.id,
+          label: 'Action Column',
+          type: 'text',
+          isSystem: true,
+          isFrozen: false,
+          isVisible: true,
+          fieldKey: 'actions',
+          sortOrder: 1000,
+          width: 120,
+          createdAt: new Date().toISOString(),
+        };
+        await createColumn(actionCol);
+        updatedCols.push(actionCol);
+      }
+      
+      setNameWidth(nameCol.width || 180);
+      setIsNameFrozen(!!nameCol.isFrozen);
+
+      setColumns(updatedCols);
       setPeople(guests.sort((a, b) => a.name.localeCompare(b.name)));
-    } catch {
+    } catch (err) {
+      console.error('Data load error:', err);
       addToast('Error loading people list', 'error');
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [categoryId, eventId, addToast]);
 
   useEffect(() => {
-    setIsLoading(true);
     fetchData();
-  }, [categoryId]);
+  }, [fetchData]);
 
   // ── Inline cell auto-save ─────────────────────────────────────────────────
   const handleCellChange = useCallback(async (personId, fieldKey, newValue) => {
@@ -100,7 +151,7 @@ export function PeopleListTab({ eventId, categoryId }) {
       addToast('Failed to save change', 'error');
       fetchData(); // rollback on error
     }
-  }, [people, columns, addToast]);
+  }, [people, columns, addToast, fetchData]);
 
   // ── Row toggles (Lock/Export) ─────────────────────────────────────────────
   const handleToggleRow = useCallback(async (personId, field) => {
@@ -110,8 +161,7 @@ export function PeopleListTab({ eventId, categoryId }) {
     }));
 
     try {
-      const personArr = people; // avoid stale people in some contexts if needed, but callback deps are correct
-      const person = personArr.find(p => p.id === personId);
+      const person = people.find(p => p.id === personId);
       if (person) {
         await updatePerson({ ...person, [field]: !person[field], updatedAt: new Date().toISOString() });
       }
@@ -119,27 +169,54 @@ export function PeopleListTab({ eventId, categoryId }) {
       addToast('Failed to update status', 'error');
       fetchData();
     }
-  }, [people]);
+  }, [people, addToast, fetchData]);
 
   // ── Column resizing ────────────────────────────────────────────────────────
   const handleColumnResize = useCallback(async (colId, newWidth) => {
-    if (colId === 'system-name') {
+    const isAction = colId === 'actions' || colId === 'system-actions' || colId.startsWith('system-actions-');
+    const col = columns.find(c => c.id === colId || (colId === 'system-name' && c.fieldKey === 'name') || (isAction && c.fieldKey === 'actions'));
+    
+    if (colId === 'system-name' || col?.fieldKey === 'name') {
       setNameWidth(newWidth);
-      return;
     }
 
-    setColumns(prev => prev.map(c => c.id === colId ? { ...c, width: newWidth } : c));
+    setColumns(prev => prev.map(c => (c.id === colId || (colId === 'system-name' && c.fieldKey === 'name') || (isAction && c.fieldKey === 'actions')) ? { ...c, width: newWidth } : c));
 
-    // Persist to DB if not system
-    const col = columns.find(c => c.id === colId);
-    if (col && !col.isSystem) {
+    if (col) {
       try {
         await updateColumn({ ...col, width: newWidth });
-      } catch {
-        // Silently fail or log, resizing is high frequency
+      } catch (err) {
+        console.error('Resize save error:', err);
       }
     }
   }, [columns]);
+
+  const handleTogglePin = useCallback(async (colId) => {
+    const isName = colId === 'system-name';
+    const isAction = colId === 'actions' || colId === 'system-actions' || colId.startsWith('system-actions-');
+    
+    const col = columns.find(c => 
+      c.id === colId || 
+      (isName && c.fieldKey === 'name') ||
+      (isAction && c.fieldKey === 'actions')
+    );
+    if (!col) return;
+
+    const nextFrozen = !col.isFrozen;
+    
+    // Update local state
+    if (col.fieldKey === 'name') {
+      setIsNameFrozen(nextFrozen);
+    }
+    setColumns(prev => prev.map(c => c.id === col.id ? { ...c, isFrozen: nextFrozen } : c));
+
+    try {
+      await updateColumn({ ...col, isFrozen: nextFrozen });
+    } catch (err) {
+      addToast('Failed to toggle pin', 'error');
+      fetchData();
+    }
+  }, [columns, fetchData, addToast]);
 
   // ── Filtering & Sorting ──────────────────────────────────────────────────
   const filteredAndSortedPeople = useMemo(() => {
@@ -276,6 +353,7 @@ export function PeopleListTab({ eventId, categoryId }) {
             people={filteredAndSortedPeople}
             columns={columns}
             nameWidth={nameWidth}
+            isNameFrozen={isNameFrozen}
             selectedIds={selectedIds}
             onSelect={setSelectedIds}
             onEdit={p => { setEditingPerson(p); setIsPersonModalOpen(true); }}
@@ -285,6 +363,7 @@ export function PeopleListTab({ eventId, categoryId }) {
             onSort={handleSort}
             sortConfig={sortConfig}
             onToggleRow={handleToggleRow}
+            onTogglePin={handleTogglePin}
             onAddGuest={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}
           />
         ) : (

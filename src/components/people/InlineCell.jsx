@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { Phone, MessageCircle, Send, Mail, Copy, Check } from 'lucide-react';
+import { Tooltip } from '../ui/Tooltip';
 import clsx from 'clsx';
 
 /**
@@ -195,9 +197,29 @@ export function InlineCell({ col, value, onChange, disabled }) {
   return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
 }
 
+const cleanPhoneForWa = (phone) => {
+  if (!phone) return '';
+  let digits = phone.replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('0')) {
+    digits = '91' + digits.slice(1);
+  }
+  if (digits.length === 10) {
+    digits = '91' + digits;
+  }
+  return digits;
+};
+
 // ── DisplayCell — the non-editing view ──────────────────────────────────────
 function DisplayCell({ value, col, onClick, disabled }) {
+  const [copied, setCopied] = useState(false);
   const isEmpty = value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   let content;
   if (isEmpty) {
@@ -225,8 +247,82 @@ function DisplayCell({ value, col, onClick, disabled }) {
     } catch {
       content = <span className="text-sm text-gray-700 dark:text-gray-300">{value}</span>;
     }
-  } else if (col.type === 'phone' || col.type === 'email') {
-    content = <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{value}</span>;
+  } else if (col.type === 'phone') {
+    content = (
+      <div className="flex items-center justify-between w-full group/actions">
+        <span className="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">{value}</span>
+        <div className="flex items-center gap-1.5 transition-opacity ml-2 shrink-0">
+          <Tooltip content="Call">
+            <a 
+              href={`tel:${value}`} 
+              onClick={e => e.stopPropagation()}
+              className="p-1 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/40 text-gray-400 hover:text-emerald-600 transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+            </a>
+          </Tooltip>
+          <Tooltip content="WhatsApp">
+            <a 
+              href={`https://wa.me/${cleanPhoneForWa(value)}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="p-1 rounded-md hover:bg-green-50 dark:hover:bg-green-900/40 text-gray-400 hover:text-green-600 transition-colors"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+            </a>
+          </Tooltip>
+          <Tooltip content="SMS">
+            <a 
+              href={`sms:${value?.replace(/\s/g, '')}`} 
+              onClick={e => e.stopPropagation()}
+              className="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/40 text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </a>
+          </Tooltip>
+          <Tooltip content={copied ? "Copied!" : "Copy Phone"}>
+            <button 
+              onClick={handleCopy}
+              className={clsx(
+                "p-1 rounded-md transition-colors",
+                copied ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600"
+              )}
+            >
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </Tooltip>
+        </div>
+      </div>
+    );
+  } else if (col.type === 'email') {
+    content = (
+      <div className="flex items-center justify-between w-full group/actions">
+        <span className="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">{value}</span>
+        <div className="flex items-center gap-1.5 transition-opacity ml-2 shrink-0">
+          <Tooltip content="Send Email">
+            <a 
+              href={`mailto:${value?.trim()}`} 
+              onClick={e => e.stopPropagation()}
+              className="p-1 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              <Mail className="w-3.5 h-3.5" />
+            </a>
+          </Tooltip>
+          <Tooltip content={copied ? "Copied!" : "Copy Email"}>
+            <button 
+              onClick={handleCopy}
+              className={clsx(
+                "p-1 rounded-md transition-colors",
+                copied ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600"
+              )}
+            >
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </Tooltip>
+        </div>
+      </div>
+    );
   } else if (col.type === 'textarea') {
     content = <span className="text-sm font-bold text-gray-700 dark:text-gray-300 line-clamp-2">{value}</span>;
   } else {
