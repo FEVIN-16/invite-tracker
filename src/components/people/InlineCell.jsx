@@ -12,7 +12,7 @@ import clsx from 'clsx';
  *   value   — current value
  *   onChange — called with new value when the user commits a change
  */
-export function InlineCell({ col, value, onChange, disabled }) {
+export function InlineCell({ col, value, onChange, disabled, onInvite }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef(null);
@@ -83,7 +83,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
         </div>
       );
     }
-    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
+    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} onInvite={onInvite} />;
   }
 
   // ─── RADIO ──────────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
         </div>
       );
     }
-    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
+    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} onInvite={onInvite} />;
   }
 
   // ─── MULTISELECT ─────────────────────────────────────────────────────────
@@ -147,7 +147,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
         </div>
       );
     }
-    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
+    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} onInvite={onInvite} />;
   }
 
   // ─── TEXTAREA ──────────────────────────────────────────────────────────
@@ -166,7 +166,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
         />
       );
     }
-    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
+    return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} onInvite={onInvite} />;
   }
 
   // ─── TEXT / NUMBER / PHONE / DATE ────────────────────────────────────────
@@ -194,7 +194,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
     );
   }
 
-  return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} />;
+  return <DisplayCell value={value} col={col} onClick={() => !disabled && setIsEditing(true)} disabled={disabled} onInvite={onInvite} />;
 }
 
 const cleanPhoneForWa = (phone) => {
@@ -210,7 +210,7 @@ const cleanPhoneForWa = (phone) => {
 };
 
 // ── DisplayCell — the non-editing view ──────────────────────────────────────
-function DisplayCell({ value, col, onClick, disabled }) {
+function DisplayCell({ value, col, onClick, disabled, onInvite }) {
   const [copied, setCopied] = useState(false);
   const isEmpty = value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
 
@@ -262,24 +262,20 @@ function DisplayCell({ value, col, onClick, disabled }) {
             </a>
           </Tooltip>
           <Tooltip content="WhatsApp">
-            <a 
-              href={`https://wa.me/${cleanPhoneForWa(value)}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
+            <button 
+              onClick={e => { e.stopPropagation(); onInvite?.(value, 'whatsapp'); }}
               className="p-1 rounded-md hover:bg-green-50 dark:hover:bg-green-900/40 text-gray-400 hover:text-green-600 transition-colors"
             >
               <MessageCircle className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </Tooltip>
           <Tooltip content="SMS">
-            <a 
-              href={`sms:${value?.replace(/\s/g, '')}`} 
-              onClick={e => e.stopPropagation()}
+            <button 
+              onClick={e => { e.stopPropagation(); onInvite?.(value, 'sms'); }}
               className="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/40 text-gray-400 hover:text-blue-600 transition-colors"
             >
               <Send className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </Tooltip>
           <Tooltip content={copied ? "Copied!" : "Copy Phone"}>
             <button 
@@ -301,13 +297,12 @@ function DisplayCell({ value, col, onClick, disabled }) {
         <span className="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">{value}</span>
         <div className="flex items-center gap-1.5 transition-opacity ml-2 shrink-0">
           <Tooltip content="Send Email">
-            <a 
-              href={`mailto:${value?.trim()}`} 
-              onClick={e => e.stopPropagation()}
+            <button 
+              onClick={e => { e.stopPropagation(); onInvite?.(value, 'email'); }}
               className="p-1 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-gray-400 hover:text-indigo-600 transition-colors"
             >
               <Mail className="w-3.5 h-3.5" />
-            </a>
+            </button>
           </Tooltip>
           <Tooltip content={copied ? "Copied!" : "Copy Email"}>
             <button 

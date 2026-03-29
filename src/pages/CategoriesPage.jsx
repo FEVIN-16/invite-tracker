@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus, Grid3x3, Search, ChevronRight, ArrowLeft, Calendar,
-  Tag, Users, Edit2, BarChart2, CheckCircle, Clock, LayoutGrid
+  Tag, Users, Edit2, BarChart2, CheckCircle, Clock, LayoutGrid, MessageSquare, Paperclip, Eye, BookOpen, ExternalLink
 } from 'lucide-react';
 import { getCategoriesByEvent, deleteCategory } from '../db/categoriesDb';
 import { getEventById } from '../db/eventsDb';
@@ -42,6 +42,7 @@ export default function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [deletingCategory, setDeletingCategory] = useState(null);
+  const [expandedMessages, setExpandedMessages] = useState({});
 
   // Dashboard stats
   const [stats, setStats] = useState(null);
@@ -132,6 +133,29 @@ export default function CategoriesPage() {
     setCurrentCategory(cat);
     navigate(`/events/${eventId}/categories/${cat.id}/detail`);
   }
+
+  const handlePreview = (attachment) => {
+    try {
+      const arr = attachment.data.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      const blob = new Blob([u8arr], { type: mime });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch {
+      addToast('Preview failed', 'error');
+    }
+  };
+
+  const toggleExpand = (e, id) => {
+    e.stopPropagation();
+    setExpandedMessages(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   if (isLoading) {
     return (
@@ -341,7 +365,56 @@ export default function CategoriesPage() {
                       </div>
                     </div>
                     {cat.description && (
-                      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-6 line-clamp-2 uppercase tracking-widest">{cat.description}</p>
+                      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 line-clamp-2 uppercase tracking-widest">{cat.description}</p>
+                    )}
+
+                    {/* Invite Message Preview */}
+                    {cat.inviteMessage && (
+                      <div className="mb-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl p-3 border border-gray-100 dark:border-gray-800/50">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                          <MessageSquare className="w-2.5 h-2.5" /> Invite Message
+                        </p>
+                        <p className={clsx(
+                          "text-xs text-gray-700 dark:text-gray-300 leading-relaxed font-bold",
+                          !expandedMessages[cat.id] && "line-clamp-2"
+                        )}>
+                          {cat.inviteMessage}
+                        </p>
+                        {cat.inviteMessage.split('\n').length > 2 || cat.inviteMessage.length > 80 ? (
+                          <button 
+                            onClick={(e) => toggleExpand(e, cat.id)}
+                            className="mt-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
+                          >
+                            {expandedMessages[cat.id] ? 'Show Less' : 'Read More'}
+                            <BookOpen className="w-2.5 h-2.5" />
+                          </button>
+                        ) : null}
+                      </div>
+                    )}
+
+                    {/* Attachments Preview */}
+                    {cat.attachments && cat.attachments.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                          <Paperclip className="w-2.5 h-2.5" /> Attachments ({cat.attachments.length})
+                        </p>
+                        <div className="space-y-1.5">
+                          {cat.attachments.slice(0, 3).map(att => (
+                            <div key={att.id} className="flex items-center justify-between gap-2 p-1.5 bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-lg group/att">
+                              <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate flex-1">{att.name}</span>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handlePreview(att); }}
+                                className="p-1 px-2 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-gray-900 transition-all flex items-center gap-1 text-[9px] font-black uppercase tracking-widest border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50"
+                              >
+                                Preview <Eye className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          ))}
+                          {cat.attachments.length > 3 && (
+                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest ml-1">+{cat.attachments.length - 3} more files</p>
+                          )}
+                        </div>
+                      </div>
                     )}
                     <div className="flex items-center justify-between mt-4 pt-5 border-t border-gray-50 dark:border-gray-800">
                       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">

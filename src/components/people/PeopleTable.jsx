@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Edit3, Trash2, CheckSquare, Square, Plus, Lock, Unlock, FileText, Ban, ArrowUp, ArrowDown, Pin, PinOff } from 'lucide-react';
+import { Edit3, Trash2, CheckSquare, Square, Plus, Lock, Unlock, FileText, Ban, ArrowUp, ArrowDown, Pin, PinOff, MessageCircle, Mail, MessageSquareText } from 'lucide-react';
 import { deletePerson } from '../../db/peopleDb';
 import { useUIStore } from '../../store/uiStore';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -22,7 +22,9 @@ export function PeopleTable({
   onSort,
   sortConfig,
   onToggleRow,
-  onTogglePin
+  onTogglePin,
+  event,
+  category
 }) {
   const { addToast } = useUIStore();
   const [deletingId, setDeletingId] = useState(null);
@@ -43,6 +45,76 @@ export function PeopleTable({
       setDeletingId(null);
     }
   }
+
+  const handleInvite = async (person, platform, overrideValue) => {
+    // 1. Find Identifiers
+    const phoneCol = columns.find(c => c.type === 'phone');
+    const emailCol = columns.find(c => c.type === 'email');
+    
+    let phone = '';
+    let email = '';
+
+    if (overrideValue) {
+      if (platform === 'email') email = overrideValue;
+      else phone = overrideValue.replace(/\D/g, '');
+    } else {
+      const rawPhone = person.dynamicFields?.[phoneCol?.id] || '';
+      phone = rawPhone.replace(/\D/g, '');
+      email = person.dynamicFields?.[emailCol?.id] || '';
+    }
+
+    // 2. Prepare Content
+    const subject = event?.title || 'Invitation';
+    const message = category?.inviteMessage || `Hi ${person.name}, you are invited!`;
+    const attachments = category?.attachments || [];
+
+    // Base64 to File conversion helper
+    const dataURLtoFile = (dataurl, filename) => {
+      let arr = dataurl.split(','),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]), 
+          n = bstr.length, 
+          u8arr = new Uint8Array(n);
+      while(n--){
+          u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, {type:mime});
+    };
+
+    try {
+      // 3. Share with Attachments (Mobile/Web Share API)
+      if (navigator.share && attachments.length > 0) {
+        const files = attachments.map(a => dataURLtoFile(a.data, a.name));
+        
+        if (navigator.canShare && navigator.canShare({ files })) {
+          await navigator.share({
+            title: subject,
+            text: message,
+            files: files
+          });
+          addToast('Shared successfully');
+          return;
+        }
+      }
+
+      // 4. Fallback: Channel-Specific Text Only
+      if (platform === 'whatsapp') {
+        if (!phone) { addToast('No phone number found', 'warning'); return; }
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+      } else if (platform === 'email') {
+        if (!email) { addToast('No email found', 'warning'); return; }
+        window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`, '_blank');
+      } else if (platform === 'sms') {
+        if (!phone) { addToast('No phone number found', 'warning'); return; }
+        window.open(`sms:${phone}?body=${encodeURIComponent(message)}`, '_blank');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Share error:', err);
+        addToast('Sharing failed', 'error');
+      }
+    }
+  };
 
   function toggleSelectAll() {
     if (people.length > 0 && selectedIds.length === people.length) {
@@ -262,6 +334,7 @@ export function PeopleTable({
                         value={person.name}
                         onChange={val => onCellChange(person.id, 'name', val)}
                         disabled={person.isLocked}
+                        onInvite={(val, type) => handleInvite(person, type, val)}
                       />
                     </td>
                   );
@@ -331,6 +404,7 @@ export function PeopleTable({
                       value={person.dynamicFields?.[col.id]}
                       onChange={val => onCellChange(person.id, col.id, val)}
                       disabled={person.isLocked}
+                      onInvite={(val, type) => handleInvite(person, type, val)}
                     />
                   </td>
                 );

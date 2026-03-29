@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Users, BarChart2, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { Users, BarChart2, CheckCircle, Clock, TrendingUp, FileText, Download, MessageSquare, Paperclip } from 'lucide-react';
 import { getPeopleByCategory } from '../../db/peopleDb';
 import { getColumnsByCategory } from '../../db/columnsDb';
+import { getCategoryById } from '../../db/categoriesDb';
 import { Spinner } from '../ui/Spinner';
 import { StatCard } from '../dashboard/StatCard';
 import { StatusChart } from '../dashboard/StatusChart';
@@ -14,9 +15,10 @@ export function CategoryDashboardTab({ categoryId }) {
   useEffect(() => {
     async function load() {
       try {
-        const [people, columns] = await Promise.all([
+        const [people, columns, category] = await Promise.all([
           getPeopleByCategory(categoryId),
-          getColumnsByCategory(categoryId)
+          getColumnsByCategory(categoryId),
+          getCategoryById(categoryId)
         ]);
 
         // Find RSVP / Status select columns
@@ -61,6 +63,7 @@ export function CategoryDashboardTab({ categoryId }) {
           .slice(0, 5);
 
         setStats({
+          category,
           total: people.length,
           confirmedCount,
           pendingCount,
@@ -136,7 +139,7 @@ export function CategoryDashboardTab({ categoryId }) {
         </div>
 
         {/* Summary card */}
-        <div className="h-fit">
+        <div className="space-y-6">
           <Accordion title="Summary" icon={BarChart2} defaultOpen>
             <div className="space-y-4">
               <div>
@@ -162,6 +165,63 @@ export function CategoryDashboardTab({ categoryId }) {
               </div>
             </div>
           </Accordion>
+
+          {/* Invitation Details & Documents */}
+          {(stats.category?.inviteMessage || (stats.category?.attachments && stats.category.attachments.length > 0)) && (
+            <Accordion title="Invitation Details" icon={MessageSquare} defaultOpen>
+              <div className="space-y-6">
+                {stats.category.inviteMessage && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                      <MessageSquare className="w-3 h-3" /> Invite Message
+                    </p>
+                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-100 dark:border-gray-800">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        {stats.category.inviteMessage}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {stats.category.attachments && stats.category.attachments.length > 0 && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                      <Paperclip className="w-3 h-3" /> Attached Documents
+                    </p>
+                    <div className="space-y-2">
+                      {stats.category.attachments.map(file => (
+                        <div key={file.id} className="flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden group/file">
+                          {file.type.startsWith('image/') && (
+                            <div className="w-full h-32 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden border-b border-gray-50 dark:border-gray-800/50">
+                              <img src={file.data} alt="" className="w-full h-full object-cover transition-transform group-hover/file:scale-105" />
+                            </div>
+                          )}
+                          <div className="p-3 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                                {file.type.startsWith('image/') ? <ImageIcon className="w-4 h-4 text-indigo-500" /> : <FileText className="w-4 h-4 text-indigo-500" />}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-black text-gray-900 dark:text-white truncate">{file.name}</p>
+                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{(file.size / 1024).toFixed(1)} KB</p>
+                              </div>
+                            </div>
+                            <a
+                              href={file.data}
+                              download={file.name}
+                              className="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-all"
+                            >
+                              <Download className="w-4 h-4" />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Accordion>
+          )}
         </div>
       </div>
     </div>

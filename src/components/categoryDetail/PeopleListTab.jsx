@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
 import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
 import { getColumnsByCategory, updateColumn, createColumn } from '../../db/columnsDb';
+import { getEventById } from '../../db/eventsDb';
+import { getCategoryById } from '../../db/categoriesDb';
 import { validateEmail, validatePhone } from '../../utils/validation';
 import { useUIStore } from '../../store/uiStore';
 import { Button } from '../ui/Button';
@@ -25,6 +27,8 @@ export function PeopleListTab({ eventId, categoryId }) {
   const [nameWidth, setNameWidth] = useState(180);
   const [isNameFrozen, setIsNameFrozen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [event, setEvent] = useState(null);
+  const [category, setCategory] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
@@ -41,8 +45,12 @@ export function PeopleListTab({ eventId, categoryId }) {
     if (!categoryId) return;
     setIsLoading(true);
     try {
-      const dbCols = await getColumnsByCategory(categoryId);
-      const guests = await getPeopleByCategory(categoryId);
+      const [dbCols, guests, ev, cat] = await Promise.all([
+        getColumnsByCategory(categoryId),
+        getPeopleByCategory(categoryId),
+        getEventById(eventId),
+        getCategoryById(categoryId)
+      ]);
 
       // Handle system columns sync (ensure they exist in DB)
       let updatedCols = [...dbCols];
@@ -95,6 +103,8 @@ export function PeopleListTab({ eventId, categoryId }) {
 
       setColumns(updatedCols);
       setPeople(guests.sort((a, b) => a.name.localeCompare(b.name)));
+      setEvent(ev);
+      setCategory(cat);
     } catch (err) {
       console.error('Data load error:', err);
       addToast('Error loading people list', 'error');
@@ -369,6 +379,8 @@ export function PeopleListTab({ eventId, categoryId }) {
             onToggleRow={handleToggleRow}
             onTogglePin={handleTogglePin}
             onAddGuest={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}
+            event={event}
+            category={category}
           />
         ) : (
           <EmptyState
