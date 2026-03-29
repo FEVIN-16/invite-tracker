@@ -11,6 +11,7 @@ export const COLUMN_TYPES = [
   { value: 'textarea', label: 'Long Text' },
   { value: 'number', label: 'Number' },
   { value: 'phone', label: 'Phone' },
+  { value: 'email', label: 'Email' },
   { value: 'date', label: 'Date' },
   { value: 'checkbox', label: 'Checkbox' },
   { value: 'select', label: 'Dropdown (Single)' },

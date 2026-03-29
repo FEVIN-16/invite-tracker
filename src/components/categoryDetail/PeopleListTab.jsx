@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
 import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
 import { getColumnsByCategory } from '../../db/columnsDb';
+import { validateEmail, validatePhone } from '../../utils/validation';
 import { useUIStore } from '../../store/uiStore';
 import { Button } from '../ui/Button';
 import { EmptyState } from '../ui/EmptyState';
@@ -57,6 +58,19 @@ export function PeopleListTab({ eventId, categoryId }) {
 
   // ── Inline cell auto-save ─────────────────────────────────────────────────
   const handleCellChange = useCallback(async (personId, fieldKey, newValue) => {
+    // ── Validation ──────────────────────────────────────────────────────────
+    const column = columns.find(c => c.id === fieldKey);
+    if (column) {
+      if (column.type === 'email') {
+        const res = validateEmail(newValue);
+        if (!res.isValid) { addToast(res.error, 'warning'); return; }
+      }
+      if (column.type === 'phone') {
+        const res = validatePhone(newValue);
+        if (!res.isValid) { addToast(res.error, 'warning'); return; }
+      }
+    }
+
     // Optimistic local update first
     setPeople(prev => prev.map(p => {
       if (p.id !== personId) return p;
@@ -86,7 +100,7 @@ export function PeopleListTab({ eventId, categoryId }) {
       addToast('Failed to save change', 'error');
       fetchData(); // rollback on error
     }
-  }, [people]);
+  }, [people, columns, addToast]);
 
   // ── Row toggles (Lock/Export) ─────────────────────────────────────────────
   const handleToggleRow = useCallback(async (personId, field) => {

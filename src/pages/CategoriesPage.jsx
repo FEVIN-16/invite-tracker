@@ -143,7 +143,6 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50/30 dark:bg-gray-950/20 transition-colors">
-      <div className="flex-1 overflow-y-auto">
       <div className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 px-4 md:px-8 py-5">
         <button
           onClick={() => navigate('/events')}

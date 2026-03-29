@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { CalendarHeart } from 'lucide-react';
+import { CalendarHeart, Moon, Sun } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();

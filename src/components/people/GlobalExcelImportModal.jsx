@@ -3,6 +3,7 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Select } from '../ui/Select';
 import { readExcelFile, mapGlobalExcelData } from '../../utils/excel';
+import { validateEmail, validatePhone } from '../../utils/validation';
 import { bulkCreateContacts } from '../../db/contactsDb';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
@@ -72,16 +73,33 @@ export function GlobalExcelImportModal({ isOpen, onClose, onSuccess, groupId }) 
 
     setIsImporting(true);
     try {
-      const mappedContacts = mapGlobalExcelData(rawRows, mapping).map(c => ({
-        ...c,
-        id: uuid(),
-        groupId,
-        userId: user.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }));
+      const mapped = mapGlobalExcelData(rawRows, mapping);
+      
+      // Perform validation check on mapped data
+      let invalidCount = 0;
+      const validated = mapped.map(c => {
+        const emailRes = validateEmail(c.email);
+        const phoneRes = validatePhone(c.phone);
+        if (!emailRes.isValid || !phoneRes.isValid) invalidCount++;
+        
+        return {
+          ...c,
+          id: uuid(),
+          groupId,
+          userId: user.id,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      });
 
-      await bulkCreateContacts(mappedContacts);
+      if (invalidCount > 0) {
+        if (!confirm(`${invalidCount} contacts have invalid email or phone formats. Proceed anyway?`)) {
+          setIsImporting(false);
+          return;
+        }
+      }
+
+      await bulkCreateContacts(validated);
       setStep(3);
       onSuccess();
     } catch {

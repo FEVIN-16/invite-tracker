@@ -6,12 +6,14 @@ import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
 import { Checkbox } from '../ui/Checkbox';
 import { createPerson, updatePerson } from '../../db/peopleDb';
+import { validateEmail, validatePhone } from '../../utils/validation';
 import { useUIStore } from '../../store/uiStore';
 import clsx from 'clsx';
 
 export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, eventId, columns }) {
   const { addToast } = useUIStore();
   const [form, setForm] = useState({ name: '', dynamicFields: {} });
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
       });
       setForm({ name: '', dynamicFields: initialFields });
     }
+    setErrors({});
   }, [person, isOpen, columns]);
 
   function handleFieldChange(colId, value) {
@@ -33,6 +36,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
       ...prev,
       dynamicFields: { ...prev.dynamicFields, [colId]: value }
     }));
+    if (errors[colId]) setErrors(prev => ({ ...prev, [colId]: null }));
   }
 
   function toggleMultiSelect(colId, opt) {
@@ -46,6 +50,26 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
   async function handleSubmit(e) {
     if (e) e.preventDefault();
     if (!form.name.trim()) return;
+
+    // Validation
+    const newErrors = {};
+    columns.forEach(col => {
+      const val = form.dynamicFields[col.id];
+      if (col.type === 'email') {
+        const res = validateEmail(val);
+        if (!res.isValid) newErrors[col.id] = res.error;
+      }
+      if (col.type === 'phone') {
+        const res = validatePhone(val);
+        if (!res.isValid) newErrors[col.id] = res.error;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      addToast('Please fix the errors before saving', 'warning');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -205,6 +229,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
                 value={val || ''}
                 onChange={e => handleFieldChange(col.id, e.target.value)}
                 disabled={person?.isLocked}
+                error={errors[col.id]}
               />
             );
           })}

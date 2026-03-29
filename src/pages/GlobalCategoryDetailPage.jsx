@@ -4,6 +4,7 @@ import { Users, ArrowLeft, Plus, Trash2, Search, Edit2, Phone, Mail, StickyNote,
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { getGroupsByUser, getContactsByGroup, createContact, updateContact, deleteContact, bulkDeleteContacts } from '../db/contactsDb';
+import { validateEmail, validatePhone } from '../utils/validation';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
@@ -19,6 +20,7 @@ function ContactModal({ isOpen, onClose, onSuccess, contact, groupId }) {
   const { addToast } = useUIStore();
   const user = useAuthStore(s => s.user);
   const [form, setForm] = useState({ name: '', phone: '', email: '', identifier: '' });
+  const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -27,13 +29,32 @@ function ContactModal({ isOpen, onClose, onSuccess, contact, groupId }) {
     } else {
       setForm({ name: '', phone: '', email: '', identifier: '' });
     }
+    setErrors({});
   }, [contact, isOpen]);
 
-  const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
+  const set = (field) => (e) => {
+    setForm(f => ({ ...f, [field]: e.target.value }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
+  };
 
   async function handleSave(e) {
     e.preventDefault();
     if (!form.name.trim()) return;
+
+    // Validation
+    const newErrors = {};
+    const emailRes = validateEmail(form.email);
+    const phoneRes = validatePhone(form.phone);
+
+    if (!emailRes.isValid) newErrors.email = emailRes.error;
+    if (!phoneRes.isValid) newErrors.phone = phoneRes.error;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      addToast('Please fix the errors before saving', 'warning');
+      return;
+    }
+
     setSaving(true);
     try {
       const data = {
@@ -75,10 +96,10 @@ function ContactModal({ isOpen, onClose, onSuccess, contact, groupId }) {
       }
     >
       <form onSubmit={handleSave} className="space-y-5 py-2">
-        <Input label="Full Name *" placeholder="e.g. Rahul Sharma" value={form.name} onChange={set('name')} required autoFocus />
+        <Input label="Full Name" placeholder="e.g. Rahul Sharma" value={form.name} onChange={set('name')} required autoFocus />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Phone" type="tel" placeholder="+91 98765 43210" value={form.phone} onChange={set('phone')} />
-          <Input label="Email" type="email" placeholder="name@example.com" value={form.email} onChange={set('email')} />
+          <Input label="Phone" type="tel" placeholder="+91 98765 43210" value={form.phone} onChange={set('phone')} error={errors.phone} />
+          <Input label="Email" type="email" placeholder="name@example.com" value={form.email} onChange={set('email')} error={errors.email} />
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest pl-1">Identifier Note <span className="text-gray-300 dark:text-gray-800">(optional)</span></label>

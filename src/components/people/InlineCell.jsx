@@ -171,6 +171,7 @@ export function InlineCell({ col, value, onChange, disabled }) {
   const inputType =
     col.type === 'number' ? 'number'
     : col.type === 'phone' ? 'tel'
+    : col.type === 'email' ? 'email'
     : col.type === 'date' ? 'date'
     : 'text';
 
@@ -224,7 +225,7 @@ function DisplayCell({ value, col, onClick, disabled }) {
     } catch {
       content = <span className="text-sm text-gray-700 dark:text-gray-300">{value}</span>;
     }
-  } else if (col.type === 'phone') {
+  } else if (col.type === 'phone' || col.type === 'email') {
     content = <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{value}</span>;
   } else if (col.type === 'textarea') {
     content = <span className="text-sm font-bold text-gray-700 dark:text-gray-300 line-clamp-2">{value}</span>;
