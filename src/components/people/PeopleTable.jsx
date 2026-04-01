@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Edit3, Trash2, CheckSquare, Square, Plus, Lock, Unlock, FileText, Ban, ArrowUp, ArrowDown, Pin, PinOff, MessageCircle, Mail, MessageSquareText } from 'lucide-react';
+import { Edit3, Trash2, CheckSquare, Square, Plus, Lock, Unlock, FileText, Ban, ArrowUp, ArrowDown, Pin, PinOff, MessageCircle, Mail, MessageSquareText, Share2 } from 'lucide-react';
 import { deletePerson } from '../../db/peopleDb';
 import { useUIStore } from '../../store/uiStore';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -82,31 +82,49 @@ export function PeopleTable({
     };
 
     try {
-      // 3. Share with Attachments (Mobile/Web Share API)
-      if (navigator.share && attachments.length > 0) {
-        const files = attachments.map(a => dataURLtoFile(a.data, a.name));
-        
-        if (navigator.canShare && navigator.canShare({ files })) {
-          await navigator.share({
-            title: subject,
-            text: message,
-            files: files
-          });
-          addToast('Shared successfully');
+      // 3. System Share (Rich Content with Files)
+      if (platform === 'system') {
+        if (navigator.share && attachments.length > 0) {
+          const files = attachments.map(a => dataURLtoFile(a.data, a.name));
+          
+          if (navigator.canShare && navigator.canShare({ files })) {
+            await navigator.share({
+              title: subject,
+              text: message,
+              files: files
+            });
+            addToast('Shared successfully');
+            return;
+          }
+        }
+        // Fallback for system share if no files or no navigator.share
+        if (navigator.share) {
+          await navigator.share({ title: subject, text: message });
           return;
         }
+        addToast('Sharing not supported on this device', 'warning');
+        return;
       }
 
-      // 4. Fallback: Channel-Specific Text Only
+      // 4. Direct App Sharing (Text Only - 1 Click Experience)
       if (platform === 'whatsapp') {
         if (!phone) { addToast('No phone number found', 'warning'); return; }
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+        if (attachments.length > 0) {
+          addToast('Message sent! Use "Share All" icon to include files.', 'info');
+        }
       } else if (platform === 'email') {
         if (!email) { addToast('No email found', 'warning'); return; }
         window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`, '_blank');
+        if (attachments.length > 0) {
+          addToast('Email draft opened! Use "Share All" icon to include files.', 'info');
+        }
       } else if (platform === 'sms') {
         if (!phone) { addToast('No phone number found', 'warning'); return; }
         window.open(`sms:${phone}?body=${encodeURIComponent(message)}`, '_blank');
+        if (attachments.length > 0) {
+          addToast('SMS app opened! Use "Share All" icon to include files.', 'info');
+        }
       }
     } catch (err) {
       if (err.name !== 'AbortError') {

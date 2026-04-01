@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Phone, MessageCircle, Send, Mail, Copy, Check } from 'lucide-react';
+import { Phone, MessageCircle, Send, Mail, Copy, Check, Share2 } from 'lucide-react';
 import { Tooltip } from '../ui/Tooltip';
 import clsx from 'clsx';
 
@@ -277,6 +277,14 @@ function DisplayCell({ value, col, onClick, disabled, onInvite }) {
               <Send className="w-3.5 h-3.5" />
             </button>
           </Tooltip>
+          <Tooltip content="Share All (Text + Files)">
+            <button 
+              onClick={e => { e.stopPropagation(); onInvite?.(value, 'system'); }}
+              className="p-1 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/40 text-gray-400 hover:text-amber-600 transition-colors"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
           <Tooltip content={copied ? "Copied!" : "Copy Phone"}>
             <button 
               onClick={handleCopy}
@@ -302,6 +310,14 @@ function DisplayCell({ value, col, onClick, disabled, onInvite }) {
               className="p-1 rounded-md hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-gray-400 hover:text-indigo-600 transition-colors"
             >
               <Mail className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
+          <Tooltip content="Share All (Text + Files)">
+            <button 
+              onClick={e => { e.stopPropagation(); onInvite?.(value, 'system'); }}
+              className="p-1 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/40 text-gray-400 hover:text-amber-600 transition-colors"
+            >
+              <Share2 className="w-3.5 h-3.5" />
             </button>
           </Tooltip>
           <Tooltip content={copied ? "Copied!" : "Copy Email"}>
