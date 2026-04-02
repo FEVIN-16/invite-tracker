@@ -4,6 +4,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 import { googleAuth } from '../services/googleAuth';
+import { driveSync } from '../services/driveSync';
 import { Button } from '../components/ui/Button';
 import { CalendarHeart, Moon, Sun, Chrome } from 'lucide-react';
 
@@ -38,6 +39,20 @@ export default function LoginPage() {
 
         // Save session
         googleAuth.saveSession(userData, tokenResponse.access_token);
+        
+        // Initial Drive Pull (Restore) — only when online
+        if (navigator.onLine) {
+          try {
+            const cloudData = await driveSync.pull(tokenResponse.access_token);
+            if (cloudData) {
+              await driveSync.importData(cloudData);
+              console.log('Restored data from Google Drive on first login');
+            }
+          } catch (e) {
+            console.error('Initial Drive pull failed', e);
+          }
+        }
+
         setUser(userData, tokenResponse.access_token);
         
         addToast(`Welcome back, ${profile.name}!`);
