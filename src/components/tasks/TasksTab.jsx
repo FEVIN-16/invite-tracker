@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   Plus, CheckSquare, Edit2, Trash2, CheckCircle,
   ChevronDown, ChevronUp, MoreVertical, LayoutGrid, Clock,
   ArrowUp, ArrowDown, X, Send, Lock, Unlock, MoreHorizontal,
-  Eye, EyeOff
+  Eye, EyeOff, MessageSquare, BookOpen
 } from 'lucide-react';
 import {
   getTaskGroupsByEvent, addTaskGroup, updateTaskGroup, deleteTaskGroup, updateGroupOrders,
@@ -19,6 +19,61 @@ import { Tooltip } from '../ui/Tooltip';
 import { TaskGroupModal } from './TaskGroupModal';
 import { TaskModal } from './TaskModal';
 import clsx from 'clsx';
+
+const TruncatedText = ({ text, className, btnClassName, lineClampClass = "line-clamp-2" }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const textRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (textRef.current && !isExpanded) {
+      const isTruncated = textRef.current.scrollHeight > textRef.current.offsetHeight;
+      if (isTruncated) setHasOverflow(true);
+    }
+  }, [text, isExpanded]);
+
+  const toggleExpand = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div className="relative group/text">
+      <p 
+        ref={textRef}
+        className={clsx(
+          className,
+          !isExpanded && lineClampClass,
+          isExpanded && "whitespace-pre-wrap"
+        )}
+      >
+        {text}
+      </p>
+      {hasOverflow && !isExpanded && (
+        <div className="absolute bottom-0 right-0 pl-8 pb-0.5 transition-all bg-gradient-to-l from-white via-white/90 to-transparent dark:from-gray-900 dark:via-gray-900/90">
+          <button 
+            onClick={toggleExpand}
+            className={clsx("font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1", btnClassName)}
+          >
+            Read More
+            <BookOpen className="w-2.5 h-2.5" />
+          </button>
+        </div>
+      )}
+      {isExpanded && hasOverflow && (
+        <div className="mt-1">
+          <button 
+            onClick={toggleExpand}
+            className={clsx("font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1", btnClassName)}
+          >
+            Show Less
+            <BookOpen className="w-2.5 h-2.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 import { v4 as uuidv4 } from 'uuid';
 
 export function TasksTab({ eventId }) {
@@ -37,6 +92,7 @@ export function TasksTab({ eventId }) {
   const [activeInlineGroupId, setActiveInlineGroupId] = useState(null);
   const [inlineTaskName, setInlineTaskName] = useState('');
   const [inlineTaskNotes, setInlineTaskNotes] = useState('');
+  const [showInlineNotes, setShowInlineNotes] = useState(false);
 
   // Mobile Options State
   const [activeGroupOptions, setActiveGroupOptions] = useState(null);
@@ -406,34 +462,76 @@ export function TasksTab({ eventId }) {
                     <div className="space-y-2">
                       {/* Inline Task Form */}
                       {activeInlineGroupId === group.id && (
-                        <div className="bg-white dark:bg-gray-900 border-2 border-indigo-500/20 dark:border-indigo-400/20 rounded-xl p-4 shadow-xl animate-in slide-in-from-top-2 duration-200 mb-4">
-                          <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-50 dark:border-gray-800">
+                        <div className="bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50 rounded-xl p-3 animate-in slide-in-from-top-2 duration-200 mb-4 transition-all overflow-hidden">
+                          <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-50 dark:border-gray-800/50">
                             <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Add Tasks to {group.name}</span>
-                            <button onClick={() => setActiveInlineGroupId(null)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+                            <button onClick={() => { setActiveInlineGroupId(null); setShowInlineNotes(false); }} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors">
                               <X className="w-3.5 h-3.5 text-gray-400" />
                             </button>
                           </div>
                           <div className="space-y-3">
-                            <input
-                              autoFocus
-                              type="text"
-                              placeholder="What needs to be done?"
-                              value={inlineTaskName}
-                              onChange={(e) => setInlineTaskName(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleCreateTaskInline(group.id)}
-                              className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg px-3 py-2 text-xs font-bold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500"
-                            />
-                            <textarea
-                              placeholder="Optional notes..."
-                              value={inlineTaskNotes}
-                              onChange={(e) => setInlineTaskNotes(e.target.value)}
-                              className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg px-3 py-2 text-[10px] font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-1 focus:ring-indigo-500 min-h-[60px] resize-none"
-                            />
-                            <div className="flex justify-end pt-1">
-                              <Button size="sm" icon={Send} onClick={() => handleCreateTaskInline(group.id)} disabled={!inlineTaskName.trim()}>
-                                Add Task
-                              </Button>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 min-w-0 relative">
+                                <input
+                                  autoFocus
+                                  type="text"
+                                  placeholder="What needs to be done?"
+                                  value={inlineTaskName}
+                                  onChange={(e) => setInlineTaskName(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleCreateTaskInline(group.id)}
+                                  className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-3 py-2.5 text-xs font-bold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-colors"
+                                />
+                              </div>
+                              <Tooltip content={showInlineNotes ? "Hide Notes" : "Add Notes"}>
+                                <button
+                                  onClick={() => setShowInlineNotes(!showInlineNotes)}
+                                  className={clsx(
+                                    "p-2.5 rounded-lg transition-all flex items-center justify-center border",
+                                    showInlineNotes 
+                                      ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800" 
+                                      : "bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-700 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-100 dark:hover:border-indigo-900/50"
+                                  )}
+                                >
+                                  <MessageSquare className="w-4 h-4" />
+                                </button>
+                              </Tooltip>
                             </div>
+
+                            {showInlineNotes && (
+                              <div className="flex flex-col md:flex-row items-stretch gap-2 animate-in slide-in-from-top-1 duration-200">
+                                <textarea
+                                  placeholder="Optional notes..."
+                                  value={inlineTaskNotes}
+                                  onChange={(e) => setInlineTaskNotes(e.target.value)}
+                                  className="flex-1 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-3 py-2 text-[10px] font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-indigo-500/20 min-h-[60px] resize-none shadow-sm transition-colors"
+                                />
+                                <div className="flex items-end shrink-0">
+                                  <Button 
+                                    size="sm" 
+                                    icon={Send} 
+                                    onClick={() => handleCreateTaskInline(group.id)} 
+                                    disabled={!inlineTaskName.trim()}
+                                    className="w-full md:w-auto h-full min-h-[60px] px-6 shadow-indigo-500/10"
+                                  >
+                                    Add Task
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            {!showInlineNotes && (
+                              <div className="flex justify-end pt-1 animate-in fade-in duration-200">
+                                <Button 
+                                  size="sm" 
+                                  icon={Send} 
+                                  onClick={() => handleCreateTaskInline(group.id)} 
+                                  disabled={!inlineTaskName.trim()}
+                                  className="shadow-indigo-500/10"
+                                >
+                                  Add Task
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -442,7 +540,7 @@ export function TasksTab({ eventId }) {
                         <div
                           key={task.id}
                           className={clsx(
-                            "flex items-center gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl group/task transition-all shadow-sm",
+                            "flex items-start gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl group/task transition-all shadow-sm relative",
                             !group.isCompletionLocked && "hover:border-indigo-100 dark:hover:border-indigo-900"
                           )}
                         >
@@ -450,7 +548,7 @@ export function TasksTab({ eventId }) {
                             onClick={() => handleToggleTask(task)}
                             disabled={group.isCompletionLocked}
                             className={clsx(
-                              "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0",
+                              "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5",
                               task.isDone
                                 ? "bg-indigo-600 border-indigo-600 text-white"
                                 : "border-gray-200 dark:border-gray-700 hover:border-indigo-400",
@@ -460,17 +558,24 @@ export function TasksTab({ eventId }) {
                             {task.isDone && <CheckCircle className="w-4 h-4" />}
                           </button>
 
-                          <div className="flex-1 min-w-0">
-                            <p className={clsx(
-                              "text-xs md:text-sm font-bold transition-all truncate md:whitespace-normal",
-                              task.isDone ? "text-gray-400 line-through" : "text-gray-800 dark:text-gray-200"
-                            )}>
-                              {task.name}
-                            </p>
+                          <div className="flex-1 min-w-0 py-1">
+                            <TruncatedText
+                              text={task.name}
+                              className={clsx(
+                                "text-xs md:text-sm font-bold transition-all leading-relaxed",
+                                task.isDone ? "text-gray-400 line-through" : "text-gray-800 dark:text-gray-200"
+                              )}
+                              btnClassName="text-[9px]"
+                            />
+                            
                             {task.notes && (
-                              <p className="text-[9px] md:text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 truncate uppercase tracking-widest leading-none font-bold">
-                                {task.notes}
-                              </p>
+                              <div className="mt-1">
+                                <TruncatedText
+                                  text={task.notes}
+                                  className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-relaxed font-bold"
+                                  btnClassName="text-[8px] text-indigo-500 dark:text-indigo-500/80"
+                                />
+                              </div>
                             )}
                           </div>
 

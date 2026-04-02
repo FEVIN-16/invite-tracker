@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus, Grid3x3, Search, ChevronRight, ArrowLeft, Calendar,
@@ -48,6 +48,8 @@ export default function CategoriesPage() {
   const [deletingCategory, setDeletingCategory] = useState(null);
   const [expandedMessages, setExpandedMessages] = useState({});
   const [taskGroupCount, setTaskGroupCount] = useState(0);
+
+  const tabsRef = useRef([]);
 
   // Dashboard stats
   const [stats, setStats] = useState(null);
@@ -146,6 +148,17 @@ export default function CategoriesPage() {
     navigate(`/events/${eventId}/categories/${cat.id}/detail`);
   }
 
+  const handleTabClick = (tabId, index) => {
+    setActiveTab(tabId);
+    if (tabsRef.current[index]) {
+      tabsRef.current[index].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    }
+  };
+
   const handlePreview = (attachment) => {
     try {
       const arr = attachment.data.split(',');
@@ -196,7 +209,7 @@ export default function CategoriesPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white truncate tracking-tight">{event.name}</h1>
+              <h1 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white truncate tracking-tight">{event.title}</h1>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">{event.location}</span>
                 {event.date && (
@@ -216,7 +229,7 @@ export default function CategoriesPage() {
               onClick={() => navigate(`/events/${eventId}/edit`)}
               className="flex-1 md:flex-none justify-center"
             >
-              <span className="hidden sm:inline">Edit Event</span>
+              <span className="font-bold">Edit</span>
             </Button>
             {activeTab === 'categories' && (
               <Button 
@@ -231,12 +244,12 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
-          {TABS.map(tab => (
+        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+          {TABS.map((tab, idx) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              ref={el => tabsRef.current[idx] = el}
+              onClick={() => handleTabClick(tab.id, idx)}
               className={clsx(
                 'flex items-center gap-2 pb-4 text-[11px] md:text-xs uppercase tracking-widest transition-all relative outline-none whitespace-nowrap',
                 activeTab === tab.id
@@ -382,9 +395,10 @@ export default function CategoriesPage() {
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <button
                           onClick={e => { e.stopPropagation(); setEditingCategory(cat); setIsModalOpen(true); }}
-                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
+                          className="flex items-center gap-1.5 px-3 py-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span className="text-[10px] font-black uppercase tracking-widest leading-none">Edit</span>
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); setDeletingCategory(cat); }}
