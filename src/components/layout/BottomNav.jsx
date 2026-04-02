@@ -1,6 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, MoreHorizontal, LogOut, Users, ChevronDown } from 'lucide-react';
+import { Home, MoreHorizontal, LogOut, Users, ChevronUp } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { googleAuth } from '../../services/googleAuth';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -38,7 +38,7 @@ export function BottomNav() {
             <div 
               key={tab.id}
               className={clsx(
-                'flex-1 flex items-stretch transition-colors relative',
+                'flex-1 flex items-stretch transition-colors relative border-r border-gray-100 dark:border-gray-800/50',
                 isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'
               )}
             >
@@ -53,11 +53,11 @@ export function BottomNav() {
               <button
                 onClick={() => setOpenDropdown(isOpen ? null : tab.id)}
                 className={clsx(
-                  "px-2 flex items-center justify-center border-l border-gray-100 dark:border-gray-800/50 transition-colors",
+                  "px-2 flex items-center justify-center transition-colors",
                   isOpen ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
                 )}
               >
-                <ChevronDown className={clsx(
+                <ChevronUp className={clsx(
                   "w-4 h-4 transition-transform duration-300",
                   isOpen ? "rotate-180" : "rotate-0"
                 )} />

@@ -470,15 +470,6 @@ export default function CategoriesPage() {
                   </div>
                 ))}
 
-                <button
-                  onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
-                  className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[160px] group"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center transition-colors">
-                    <Plus className="w-6 h-6 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-                  </div>
-                  <span className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Add Category</span>
-                </button>
               </div>
             ) : (
               <EmptyState

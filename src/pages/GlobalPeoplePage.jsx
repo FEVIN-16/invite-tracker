@@ -214,16 +214,6 @@ export default function GlobalPeoplePage() {
             </div>
           ))}
 
-          {/* Add card */}
-          <button
-            onClick={() => { setEditingGroup(null); setIsModalOpen(true); }}
-            className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[160px] group"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-gray-800 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30 flex items-center justify-center transition-all shadow-inner">
-              <Plus className="w-8 h-8 text-gray-400 dark:text-gray-600 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors" />
-            </div>
-            <span className="text-xs font-black text-gray-400 dark:text-gray-700 uppercase tracking-widest group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Create New Group</span>
-          </button>
         </div>
       )}
 
