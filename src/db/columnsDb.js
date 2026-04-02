@@ -1,4 +1,5 @@
 import { initDB } from './index';
+import { syncManager } from '../services/syncManager';
 
 export async function getColumnsByEvent(eventId) {
   const db = await initDB();
@@ -13,17 +14,23 @@ export async function getColumnsByCategory(categoryId) {
 
 export async function createColumn(column) {
   const db = await initDB();
-  return db.add('columns', column);
+  const res = await db.add('columns', column);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function updateColumn(column) {
   const db = await initDB();
-  return db.put('columns', column);
+  const res = await db.put('columns', column);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function deleteColumn(columnId) {
   const db = await initDB();
-  return db.delete('columns', columnId);
+  const res = await db.delete('columns', columnId);
+  syncManager.scheduleSync();
+  return res;
 }
 
 /**
@@ -36,4 +43,5 @@ export async function updateColumnsOrder(columns) {
     await tx.store.put(col);
   }
   await tx.done;
+  syncManager.scheduleSync();
 }

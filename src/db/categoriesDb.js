@@ -1,4 +1,5 @@
 import { initDB } from './index';
+import { syncManager } from '../services/syncManager';
 
 export async function getCategoriesByEvent(eventId) {
   const db = await initDB();
@@ -12,12 +13,16 @@ export async function getCategoryById(id) {
 
 export async function createCategory(category) {
   const db = await initDB();
-  return db.add('categories', category);
+  const res = await db.add('categories', category);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function updateCategory(category) {
   const db = await initDB();
-  return db.put('categories', category);
+  const res = await db.put('categories', category);
+  syncManager.scheduleSync();
+  return res;
 }
 
 /**
@@ -37,4 +42,5 @@ export async function deleteCategory(categoryId) {
   await tx.objectStore('categories').delete(categoryId);
   
   await tx.done;
+  syncManager.scheduleSync();
 }

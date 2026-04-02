@@ -3,13 +3,16 @@ import { useEffect } from 'react';
 import { initDB } from './db/index';
 import { useAuthStore } from './store/authStore';
 import { useUIStore } from './store/uiStore';
+import { googleAuth } from './services/googleAuth';
+import { driveSync } from './services/driveSync';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { OfflineBanner } from './components/ui/OfflineBanner';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
+import { useOnlineSync } from './hooks/useOnlineSync';
+import { Spinner } from './components/ui/Spinner';
 
 // Pages
-import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import NotFoundPage from './pages/NotFoundPage';
 import EventsListPage from './pages/EventsListPage';
@@ -17,8 +20,6 @@ import CreateEventPage from './pages/CreateEventPage';
 import EditEventPage from './pages/EditEventPage';
 import CategoriesPage from './pages/CategoriesPage';
 import ColumnConfigPage from './pages/ColumnConfigPage';
-import PeopleListPage from './pages/PeopleListPage';
-import DashboardPage from './pages/DashboardPage';
 import GlobalDashboardPage from './pages/GlobalDashboardPage';
 import GlobalCategoriesPage from './pages/GlobalCategoriesPage';
 import CategoryDetailPage from './pages/CategoryDetailPage';
@@ -26,8 +27,10 @@ import GlobalPeoplePage from './pages/GlobalPeoplePage';
 import GlobalCategoryDetailPage from './pages/GlobalCategoryDetailPage';
 
 export default function App() {
-  const { setUser, setLoading } = useAuthStore();
+  const { user, setUser, setLoading, isLoading } = useAuthStore();
   const { theme } = useUIStore();
+  
+  useOnlineSync();
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -39,23 +42,42 @@ export default function App() {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const userId = localStorage.getItem('currentUserId');
-      if (!userId) { setLoading(false); return; }
-      try {
-        const db = await initDB();
-        const user = await db.get('users', userId);
-        if (user) {
-          setUser({ id: user.id, username: user.username, displayName: user.displayName });
-        } else {
-          localStorage.removeItem('currentUserId');
-          setLoading(false);
+      const session = googleAuth.restoreSession();
+      if (session) {
+        setUser(session.user, session.accessToken);
+        
+        // Initial Drive Pull (Restore) — only when online
+        if (navigator.onLine) {
+          try {
+            const cloudData = await driveSync.pull(session.accessToken);
+            if (cloudData) {
+              await driveSync.importData(cloudData);
+              console.log('Restored data from Google Drive');
+            }
+          } catch (e) {
+            console.error('Initial Drive pull failed', e);
+          }
         }
-      } catch {
+      }
+      
+      try { 
+        await initDB(); 
+      } catch (e) { 
+        console.error('DB init failed', e); 
+      } finally {
         setLoading(false);
       }
     };
     restoreSession();
   }, [setUser, setLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter
@@ -64,31 +86,34 @@ export default function App() {
         v7_relativeSplatPath: true,
       }}
     >
-      <OfflineBanner />
-      <ToastContainer />
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+      <div className="h-screen overflow-hidden flex flex-col bg-white dark:bg-gray-950 transition-colors">
+        <OfflineBanner />
+        <ToastContainer />
+        <div className="flex-1 flex flex-col min-h-0 relative">
+          <Routes>
+            <Route path="/" element={user ? <Navigate to="/events" replace /> : <Navigate to="/login" replace />} />
+            <Route path="/login" element={<LoginPage />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppShell />}>
-            <Route path="/people" element={<GlobalPeoplePage />} />
-            <Route path="/people/:categoryId" element={<GlobalCategoryDetailPage />} />
-            <Route path="/events" element={<EventsListPage />} />
-            <Route path="/events/new" element={<CreateEventPage />} />
-            <Route path="/events/:eventId/edit" element={<EditEventPage />} />
-            <Route path="/dashboard" element={<GlobalDashboardPage />} />
-            <Route path="/categories" element={<GlobalCategoriesPage />} />
-            <Route path="/events/:eventId/categories" element={<CategoriesPage />} />
-            <Route path="/events/:eventId/categories/:categoryId/detail" element={<CategoryDetailPage />} />
-            {/* Legacy route for compatibility */}
-            <Route path="/events/:eventId/categories/:categoryId/people" element={<Navigate to="../detail" replace />} />
-          </Route>
-        </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppShell />}>
+                <Route path="/people" element={<GlobalPeoplePage />} />
+                <Route path="/people/:categoryId" element={<GlobalCategoryDetailPage />} />
+                <Route path="/events" element={<EventsListPage />} />
+                <Route path="/events/new" element={<CreateEventPage />} />
+                <Route path="/events/:eventId/edit" element={<EditEventPage />} />
+                <Route path="/dashboard" element={<GlobalDashboardPage />} />
+                <Route path="/categories" element={<GlobalCategoriesPage />} />
+                <Route path="/events/:eventId/categories" element={<CategoriesPage />} />
+                <Route path="/events/:eventId/categories/:categoryId/detail" element={<CategoryDetailPage />} />
+                {/* Legacy route for compatibility */}
+                <Route path="/events/:eventId/categories/:categoryId/people" element={<Navigate to="../detail" replace />} />
+              </Route>
+            </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </div>
     </BrowserRouter>
   );
 }

@@ -1,4 +1,5 @@
 import { initDB } from './index';
+import { syncManager } from '../services/syncManager';
 
 // ── Contact Groups (like "Family", "Friends") ──────────────────────────────
 
@@ -9,12 +10,16 @@ export async function getGroupsByUser(userId) {
 
 export async function createGroup(group) {
   const db = await initDB();
-  return db.add('contactGroups', group);
+  const res = await db.add('contactGroups', group);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function updateGroup(group) {
   const db = await initDB();
-  return db.put('contactGroups', group);
+  const res = await db.put('contactGroups', group);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function deleteGroup(groupId) {
@@ -25,6 +30,7 @@ export async function deleteGroup(groupId) {
   for (const k of keys) await tx.objectStore('contacts').delete(k);
   await tx.objectStore('contactGroups').delete(groupId);
   await tx.done;
+  syncManager.scheduleSync();
 }
 
 // ── Contacts ───────────────────────────────────────────────────────────────
@@ -36,17 +42,23 @@ export async function getContactsByGroup(groupId) {
 
 export async function createContact(contact) {
   const db = await initDB();
-  return db.add('contacts', contact);
+  const res = await db.add('contacts', contact);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function updateContact(contact) {
   const db = await initDB();
-  return db.put('contacts', contact);
+  const res = await db.put('contacts', contact);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function deleteContact(id) {
   const db = await initDB();
-  return db.delete('contacts', id);
+  const res = await db.delete('contacts', id);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function bulkDeleteContacts(ids) {
@@ -54,6 +66,7 @@ export async function bulkDeleteContacts(ids) {
   const tx = db.transaction('contacts', 'readwrite');
   for (const id of ids) await tx.store.delete(id);
   await tx.done;
+  syncManager.scheduleSync();
 }
 
 export async function bulkCreateContacts(contacts) {
@@ -63,4 +76,5 @@ export async function bulkCreateContacts(contacts) {
     await tx.store.put(contact);
   }
   await tx.done;
+  syncManager.scheduleSync();
 }

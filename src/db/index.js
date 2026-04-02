@@ -1,15 +1,12 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'inviteTrackerDB';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 export const initDB = () =>
   openDB(DB_NAME, DB_VERSION, {
     upgrade(db) {
-      if (!db.objectStoreNames.contains('users')) {
-        const usersStore = db.createObjectStore('users', { keyPath: 'id' });
-        usersStore.createIndex('username', 'username', { unique: true });
-      }
+      // 'users' store is removed - handled by Google Auth
 
       if (!db.objectStoreNames.contains('events')) {
         const eventsStore = db.createObjectStore('events', { keyPath: 'id' });
@@ -44,6 +41,10 @@ export const initDB = () =>
         const contactsStore = db.createObjectStore('contacts', { keyPath: 'id' });
         contactsStore.createIndex('groupId', 'groupId', { unique: false });
         contactsStore.createIndex('userId', 'userId', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains('syncQueue')) {
+        db.createObjectStore('syncQueue', { keyPath: 'id' });
       }
     },
   });

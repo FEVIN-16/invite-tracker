@@ -1,4 +1,5 @@
 import { initDB } from './index';
+import { syncManager } from '../services/syncManager';
 
 export async function getEventsByUser(userId) {
   const db = await initDB();
@@ -12,12 +13,16 @@ export async function getEventById(id) {
 
 export async function createEvent(event) {
   const db = await initDB();
-  return db.add('events', event);
+  const res = await db.add('events', event);
+  syncManager.scheduleSync();
+  return res;
 }
 
 export async function updateEvent(event) {
   const db = await initDB();
-  return db.put('events', event);
+  const res = await db.put('events', event);
+  syncManager.scheduleSync();
+  return res;
 }
 
 /**
@@ -49,4 +54,5 @@ export async function deleteEvent(eventId) {
   await tx.objectStore('events').delete(eventId);
 
   await tx.done;
+  syncManager.scheduleSync();
 }

@@ -26,6 +26,12 @@ export const useUIStore = create((set, get) => ({
   
   setIsToolbarVisible: (val) => set({ isToolbarVisible: val }),
 
+  syncStatus: 'idle', // 'idle' | 'syncing' | 'synced' | 'offline' | 'error'
+  setSyncStatus: (val) => set({ syncStatus: val }),
+
+  pendingSyncCount: 0,
+  setPendingSyncCount: (val) => set({ pendingSyncCount: val }),
+
   toggleTheme: () => {
     const newTheme = get().theme === 'light' ? 'dark' : 'light';
     set({ theme: newTheme });

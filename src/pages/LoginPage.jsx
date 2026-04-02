@@ -1,53 +1,60 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { initDB } from '../db/index';
-import { hashPassword } from '../utils/crypto';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
+import { googleAuth } from '../services/googleAuth';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { CalendarHeart, Moon, Sun } from 'lucide-react';
+import { CalendarHeart, Moon, Sun, Chrome } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const { addToast } = useUIStore();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const [form, setForm] = useState({ username: '', password: '' });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: null, form: null }));
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const newErrors = {};
-    if (!form.username) newErrors.username = 'Required';
-    if (!form.password) newErrors.password = 'Required';
-    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
-
-    setIsSubmitting(true);
-    try {
-      const db = await initDB();
-      const user = await db.getFromIndex('users', 'username', form.username.toLowerCase());
-      if (!user) { setErrors({ form: 'Invalid username or password' }); return; }
-
-      const hash = await hashPassword(form.password);
-      if (hash !== user.passwordHash) { setErrors({ form: 'Invalid username or password' }); return; }
-
-      localStorage.setItem('currentUserId', user.id);
-      setUser({ id: user.id, username: user.username, displayName: user.displayName });
-      navigate('/events');
-    } catch (e) {
-      addToast('Login failed. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
+  useEffect(() => {
+    if (user) {
+      navigate('/events', { replace: true });
     }
-  }
+  }, [user, navigate]);
+
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoggingIn(true);
+      try {
+        // Fetch user profile from Google
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const profile = await res.json();
+        
+        const userData = {
+          id: profile.sub,
+          email: profile.email,
+          name: profile.name,
+          picture: profile.picture,
+        };
+
+        // Save session
+        googleAuth.saveSession(userData, tokenResponse.access_token);
+        setUser(userData, tokenResponse.access_token);
+        
+        addToast(`Welcome back, ${profile.name}!`);
+        navigate('/events');
+      } catch (error) {
+        console.error('Fetch user info failed:', error);
+        addToast('Failed to get user profile. Please try again.', 'error');
+      } finally {
+        setIsLoggingIn(false);
+      }
+    },
+    onError: () => {
+      addToast('Google Login failed. Please try again.', 'error');
+      setIsLoggingIn(false);
+    },
+    scope: 'https://www.googleapis.com/auth/drive.appdata', // Request Drive access now
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center p-4 transition-colors relative">
@@ -64,50 +71,38 @@ export default function LoginPage() {
             <Sun className="w-4 h-4" />
           )}
         </button>
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-3">
-            <CalendarHeart className="w-7 h-7 text-white" />
+
+        <div className="flex flex-col items-center mb-10">
+          <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/20">
+            <CalendarHeart className="w-9 h-9 text-white" />
           </div>
-          <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">InviteTracker</h1>
-          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Sign in to continue</p>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">InviteTracker</h1>
+          <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 mt-2 uppercase tracking-widest text-center px-4">
+            Manage your events the traditional Indian way with cloud sync.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {errors.form && (
-            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/20 text-red-700 dark:text-red-400 text-sm rounded-lg px-3 py-2 font-bold">
-              {errors.form}
-            </div>
-          )}
-          <Input
-            label="Username"
-            name="username"
-            type="text"
-            value={form.username}
-            onChange={handleChange}
-            error={errors.username}
-            placeholder="Your username"
-            required
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-            placeholder="Your password"
-            required
-          />
-
-          <Button type="submit" loading={isSubmitting} className="w-full mt-2">
-            Sign In
+        <div className="space-y-4">
+          <Button 
+            onClick={() => { setIsLoggingIn(true); login(); }} 
+            className="w-full py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-indigo-500/10"
+            loading={isLoggingIn}
+            icon={Chrome}
+          >
+            Sign in with Google
           </Button>
-        </form>
+          
+          <p className="text-[9px] text-center text-gray-400 dark:text-gray-600 font-bold uppercase tracking-widest leading-relaxed">
+            By signing in, you agree to store your event data securely in your own Google Drive.
+          </p>
+        </div>
 
-        <p className="text-center text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mt-8">
-          New here?{' '}
-          <Link to="/signup" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">Create an account</Link>
-        </p>
+        {/* Offline notice */}
+        <div className="mt-12 pt-6 border-t border-gray-50 dark:border-gray-800 text-center">
+            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">
+              Requires internet for first-time sign-in.
+            </p>
+        </div>
       </div>
     </div>
   );

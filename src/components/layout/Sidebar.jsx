@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, CalendarHeart, LogOut, Users, Settings, Moon, Sun, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, CalendarHeart, LogOut, Users, ChevronLeft, ChevronRight, Cloud, Moon, Sun } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
+import { googleAuth } from '../../services/googleAuth';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
-import { ProfileEditModal } from './ProfileEditModal';
+import { SyncStatusBadge } from '../ui/SyncStatusBadge';
 import { Tooltip } from '../ui/Tooltip';
 import clsx from 'clsx';
 
@@ -13,16 +14,21 @@ export function Sidebar() {
   const { user, clearUser } = useAuthStore();
   const { theme, toggleTheme, isSidebarCollapsed, toggleSidebar } = useUIStore();
   const [showSignOut, setShowSignOut] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const navLinks = [
     { to: '/people', icon: Users, label: 'People' },
     { to: '/events', icon: Home, label: 'My Events' },
   ];
 
+  const handleSignOut = () => {
+    googleAuth.signOut();
+    clearUser();
+    navigate('/login');
+  };
+
   return (
     <aside className={clsx(
-      "hidden md:flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen sticky top-0 z-20 transition-all duration-300 ease-in-out group/sidebar",
+      "hidden md:flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-full sticky top-0 z-20 transition-all duration-300 ease-in-out group/sidebar",
       isSidebarCollapsed ? "w-20" : "w-64"
     )}>
       {/* Header */}
@@ -35,32 +41,35 @@ export function Sidebar() {
             <CalendarHeart className="w-5 h-5 text-white" />
           </div>
           {!isSidebarCollapsed && (
-            <span className="font-bold text-gray-900 dark:text-white truncate">InviteTracker</span>
+            <span className="font-bold text-gray-900 dark:text-white truncate uppercase tracking-tight">InviteTracker</span>
           )}
         </div>
-        
+
         {!isSidebarCollapsed && (
-          <button 
+          <button
             onClick={toggleTheme}
-            className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all ml-1"
+            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
+            title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
           >
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {theme === 'light' ? (
+              <Moon className="w-4 h-4" fill="currentColor" fillOpacity={0.1} />
+            ) : (
+              <Sun className="w-4 h-4" />
+            )}
           </button>
         )}
       </div>
 
-
-
-      {/* Centered User Profile Section */}
+      {/* Google User Profile Section */}
       <div className={clsx(
-        "py-5 flex flex-col items-center text-center border-b border-gray-100 dark:border-gray-800 relative group/profile transition-all",
+        "py-6 flex flex-col items-center text-center border-b border-gray-100 dark:border-gray-800 relative group/profile transition-all",
         isSidebarCollapsed ? "px-2" : "px-5"
       )}>
           <div className={clsx(
             "absolute top-4 transition-all flex flex-col gap-1 z-30",
             isSidebarCollapsed ? "left-0 right-0 items-center" : "right-4"
           )}>
-            <Tooltip content={isSidebarCollapsed ? 'Expand Sidebar' : ''} position={isSidebarCollapsed ? 'right' : 'left'}>
+            <Tooltip content={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse'} position={isSidebarCollapsed ? 'right' : 'left'}>
               <button
                 onClick={toggleSidebar}
                 className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
@@ -74,34 +83,37 @@ export function Sidebar() {
             "relative mb-3 group-hover/profile:scale-105 transition-transform duration-300",
             isSidebarCollapsed ? "mt-11" : "mt-0"
           )}>
-            <div className={clsx(
-              "relative rounded-full bg-indigo-600 border-4 border-white dark:border-gray-800 flex items-center justify-center text-white font-black uppercase select-none shadow-sm transition-all",
-              isSidebarCollapsed ? "w-10 h-10 text-xs" : "w-16 h-16 text-xl"
-            )}>
-              {user?.displayName?.charAt(0) || 'U'}
-            </div>
+            {user?.picture ? (
+              <img 
+                src={user.picture} 
+                alt={user.name}
+                className={clsx(
+                  "rounded-full border-4 border-white dark:border-gray-800 shadow-sm object-cover",
+                  isSidebarCollapsed ? "w-10 h-10" : "w-16 h-16"
+                )}
+              />
+            ) : (
+              <div className={clsx(
+                "relative rounded-full bg-indigo-600 border-4 border-white dark:border-gray-800 flex items-center justify-center text-white font-black uppercase shadow-sm",
+                isSidebarCollapsed ? "w-10 h-10 text-xs" : "w-16 h-16 text-xl"
+              )}>
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+            )}
           </div>
 
           {!isSidebarCollapsed && (
             <div className="min-w-0 px-2">
-              <h2 className="text-base font-black text-gray-900 dark:text-white truncate leading-tight mb-0.5">{user?.displayName}</h2>
-              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-widest truncate uppercase">@{user?.username}</p>
+              <h2 className="text-sm font-black text-gray-900 dark:text-white truncate leading-tight mb-0.5">{user?.name}</h2>
+              <p className="text-[9px] font-bold text-gray-400 dark:text-gray-500 tracking-tight truncate">{user?.email}</p>
             </div>
           )}
 
-          <div className={clsx(
-            "w-full flex justify-center transition-all",
-            isSidebarCollapsed ? "mt-1" : "mt-3"
-          )}>
-            <Tooltip content={isSidebarCollapsed ? 'Edit Profile' : ''} position={isSidebarCollapsed ? 'right' : 'bottom'}>
-              <button 
-                onClick={() => setIsEditModalOpen(true)}
-                className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
-              >
-                <Settings className="w-5 h-5 transition-all" />
-              </button>
-            </Tooltip>
-          </div>
+          {/* Sync Status Badge */}
+          <SyncStatusBadge 
+            collapsed={isSidebarCollapsed} 
+            className="mt-3" 
+          />
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto overflow-x-hidden">
@@ -114,14 +126,13 @@ export function Sidebar() {
           >
             <NavLink
               to={link.to}
-              end={link.exact}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center rounded-lg text-sm font-medium transition-all duration-200 overflow-hidden w-full',
-                  isSidebarCollapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2",
+                  'flex items-center rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 overflow-hidden w-full',
+                  isSidebarCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3",
                   isActive
-                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
                 )
               }
             >
@@ -135,19 +146,34 @@ export function Sidebar() {
       </nav>
 
       <div className={clsx(
-        "py-4 border-t border-gray-100 dark:border-gray-800 transition-all",
+        "py-4 border-t border-gray-100 dark:border-gray-800 transition-all flex flex-col items-center gap-2",
         isSidebarCollapsed ? "px-2" : "px-4"
       )}>
+        {isSidebarCollapsed && (
+          <Tooltip content={theme === 'light' ? 'Dark Mode' : 'Light Mode'} position="right">
+            <button
+              onClick={toggleTheme}
+              className="p-3 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all"
+            >
+              {theme === 'light' ? (
+                <Moon className="w-5 h-5" fill="currentColor" fillOpacity={0.1} />
+              ) : (
+                <Sun className="w-5 h-5" />
+              )}
+            </button>
+          </Tooltip>
+        )}
+        
         <Tooltip content={isSidebarCollapsed ? 'Sign Out' : ''} position="right" className="w-full">
           <button
             onClick={() => setShowSignOut(true)}
             className={clsx(
-              "flex items-center text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-bold transition-all w-full",
-              isSidebarCollapsed ? "justify-center p-2.5" : "gap-2 px-1"
+              "flex items-center text-gray-400 hover:text-red-500 transition-all w-full",
+              isSidebarCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3"
             )}
           >
             <LogOut className={clsx("flex-shrink-0 transition-all", isSidebarCollapsed ? "w-5 h-5" : "w-4 h-4")} />
-            {!isSidebarCollapsed && <span className="text-sm">Sign Out</span>}
+            {!isSidebarCollapsed && <span className="text-xs font-black uppercase tracking-widest">Sign Out</span>}
           </button>
         </Tooltip>
       </div>
@@ -155,15 +181,10 @@ export function Sidebar() {
       <ConfirmDialog
         isOpen={showSignOut}
         onClose={() => setShowSignOut(false)}
-        onConfirm={() => { clearUser(); navigate('/login'); }}
-        title="Sign Out"
-        message="Sign out? Your data will remain on this device."
-        confirmLabel="Sign Out"
-      />
-
-      <ProfileEditModal 
-        isOpen={isEditModalOpen} 
-        onClose={() => setIsEditModalOpen(false)} 
+        onConfirm={handleSignOut}
+        title="Sign Out?"
+        message="Are you sure you want to sign out from your Google account? Your local data will be preserved."
+        confirmLabel="Yes, Sign Out"
       />
     </aside>
   );
