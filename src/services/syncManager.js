@@ -66,6 +66,14 @@ export const syncManager = {
       
     } catch (error) {
       console.error('Sync failed:', error);
+      
+      // Handle Unauthorized (401)
+      if (error.message.includes('(401)')) {
+        useUIStore.getState().addToast('Session expired. Please sign in again.', 'error');
+        useAuthStore.getState().clearUser();
+        return;
+      }
+      
       useUIStore.getState().setSyncStatus('error');
     }
   }

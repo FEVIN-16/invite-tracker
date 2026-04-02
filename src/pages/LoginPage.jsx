@@ -101,7 +101,7 @@ export default function LoginPage() {
           <Button 
             onClick={() => { setIsLoggingIn(true); login(); }} 
             className="w-full py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl shadow-indigo-500/10"
-            loading={isLoggingIn}
+            isLoading={isLoggingIn}
             icon={Chrome}
           >
             Sign in with Google

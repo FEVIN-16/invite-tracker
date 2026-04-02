@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Plus, Grid3x3, Search, ChevronRight, ArrowLeft, Calendar,
-  Tag, Users, Edit2, BarChart2, CheckCircle, Clock, LayoutGrid, MessageSquare, Paperclip, Eye, BookOpen, ExternalLink
+  Tag, Users, Edit2, BarChart2, CheckCircle, Clock, LayoutGrid, MessageSquare, Paperclip, Eye, BookOpen, ExternalLink,
+  CheckSquare
 } from 'lucide-react';
 import { getCategoriesByEvent, deleteCategory } from '../db/categoriesDb';
 import { getEventById } from '../db/eventsDb';
 import { getPeopleByCategory } from '../db/peopleDb';
 import { getColumnsByEvent } from '../db/columnsDb';
+import { getTaskGroupsByEvent } from '../db/tasksDb';
 import { initDB } from '../db/index';
 import { useUIStore } from '../store/uiStore';
 import { useEventStore } from '../store/eventStore';
@@ -21,11 +23,13 @@ import { StatusChart } from '../components/dashboard/StatusChart';
 import { CategorySummary } from '../components/dashboard/CategorySummary';
 import { Accordion } from '../components/ui/Accordion';
 import { Tooltip } from '../components/ui/Tooltip';
+import { TasksTab } from '../components/tasks/TasksTab';
 import clsx from 'clsx';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: BarChart2 },
   { id: 'categories', label: 'Invite Categories', icon: Grid3x3 },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
 ];
 
 export default function CategoriesPage() {
@@ -43,6 +47,7 @@ export default function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState(null);
   const [deletingCategory, setDeletingCategory] = useState(null);
   const [expandedMessages, setExpandedMessages] = useState({});
+  const [taskGroupCount, setTaskGroupCount] = useState(0);
 
   // Dashboard stats
   const [stats, setStats] = useState(null);
@@ -57,7 +62,13 @@ export default function CategoriesPage() {
       }
       setEvent(ev);
 
-      const cats = await getCategoriesByEvent(eventId);
+      const [cats, taskGroups] = await Promise.all([
+        getCategoriesByEvent(eventId),
+        getTaskGroupsByEvent(eventId)
+      ]);
+      
+      setTaskGroupCount(taskGroups.length);
+
       const sorted = cats.sort((a, b) => a.name.localeCompare(b.name));
       const counts = await Promise.all(sorted.map(c => getPeopleByCategory(c.id)));
       const enrichedCats = sorted.map((c, i) => ({ ...c, peopleCount: counts[i].length }));
@@ -98,6 +109,7 @@ export default function CategoriesPage() {
 
       setStats({
         totalGuests: allPeople.length,
+        categoryCount: enrichedCats.length,
         confirmedCount,
         pendingCount,
         statusData,
@@ -175,16 +187,19 @@ export default function CategoriesPage() {
           <ArrowLeft className="w-3.5 h-3.5" /> Back to My Events
         </button>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg dark:shadow-none">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">{event?.title}</h1>
-              <div className="flex items-center gap-3 mt-1.5">
-                <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none">{event?.type}</span>
-                {event?.date && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <button 
+              onClick={() => navigate('/events')}
+              className="p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-400 hover:text-indigo-600 transition-all shadow-sm hover:shadow-md"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white truncate tracking-tight">{event.name}</h1>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">{event.location}</span>
+                {event.date && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-gray-200 dark:bg-gray-800" />
                     <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest leading-none">{event.date}</span>
@@ -193,24 +208,31 @@ export default function CategoriesPage() {
               </div>
             </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <Button variant="secondary" size="sm" icon={Edit2} onClick={() => navigate(`/events/${eventId}/edit`)}>
-              Edit Event
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              icon={Edit2} 
+              onClick={() => navigate(`/events/${eventId}/edit`)}
+              className="flex-1 md:flex-none justify-center"
+            >
+              <span className="hidden sm:inline">Edit Event</span>
             </Button>
             {activeTab === 'categories' && (
               <Button 
                 icon={Plus} 
                 onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
-                className="shadow-lg shadow-indigo-500/20"
+                className="flex-1 md:flex-none justify-center shadow-lg shadow-indigo-500/20"
               >
-                Add Invite Category
+                <span className="hidden sm:inline">Add Category</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             )}
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative">
+        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -234,6 +256,14 @@ export default function CategoriesPage() {
                   {enriched.length}
                 </span>
               )}
+              {tab.id === 'tasks' && taskGroupCount > 0 && (
+                <span className={clsx(
+                  "ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-black leading-none transition-colors",
+                  activeTab === tab.id ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400" : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                )}>
+                  {taskGroupCount}
+                </span>
+              )}
               {activeTab === tab.id && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-t-full" />
               )}
@@ -244,11 +274,10 @@ export default function CategoriesPage() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-auto">
-        {activeTab === 'dashboard' ? (
-          // ── Dashboard Tab ──────────────────────────────────────────────────
+        {activeTab === 'dashboard' && (
           <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
             {stats ? (
-              <>
+              <div className="space-y-6">
                 <div className="flex flex-wrap gap-4 mt-5">
                   <div className="bg-white dark:bg-gray-900 px-4 py-3 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm">
                     <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
@@ -306,7 +335,7 @@ export default function CategoriesPage() {
                     </Accordion>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <EmptyState
                 icon={BarChart2}
@@ -316,9 +345,10 @@ export default function CategoriesPage() {
               />
             )}
           </div>
-        ) : (
-          // ── Categories Tab ─────────────────────────────────────────────────
-          <div className="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="p-4 md:p-8 max-w-5xl mx-auto w-full">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite Categories</h2>
@@ -342,11 +372,11 @@ export default function CategoriesPage() {
             {filtered.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filtered.map(cat => (
-                    <div
-                      key={cat.id}
-                      className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all relative overflow-hidden cursor-pointer"
-                      onClick={() => handleOpen(cat)}
-                    >
+                  <div
+                    key={cat.id}
+                    className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-200 dark:hover:border-indigo-900 hover:shadow-xl hover:shadow-indigo-500/10 transition-all relative overflow-hidden cursor-pointer"
+                    onClick={() => handleOpen(cat)}
+                  >
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <h3 className="text-base font-black text-gray-900 dark:text-white truncate">{cat.name}</h3>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
@@ -368,7 +398,6 @@ export default function CategoriesPage() {
                       <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 line-clamp-2 uppercase tracking-widest">{cat.description}</p>
                     )}
 
-                    {/* Invite Message Preview */}
                     {cat.inviteMessage && (
                       <div className="mb-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl p-3 border border-gray-100 dark:border-gray-800/50">
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
@@ -380,7 +409,7 @@ export default function CategoriesPage() {
                         )}>
                           {cat.inviteMessage}
                         </p>
-                        {cat.inviteMessage.split('\n').length > 2 || cat.inviteMessage.length > 80 ? (
+                        {(cat.inviteMessage.split('\n').length > 2 || cat.inviteMessage.length > 80) && (
                           <button 
                             onClick={(e) => toggleExpand(e, cat.id)}
                             className="mt-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
@@ -388,11 +417,10 @@ export default function CategoriesPage() {
                             {expandedMessages[cat.id] ? 'Show Less' : 'Read More'}
                             <BookOpen className="w-2.5 h-2.5" />
                           </button>
-                        ) : null}
+                        )}
                       </div>
                     )}
 
-                    {/* Attachments Preview */}
                     {cat.attachments && cat.attachments.length > 0 && (
                       <div className="mb-4">
                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-2 flex items-center gap-1.5">
@@ -428,7 +456,6 @@ export default function CategoriesPage() {
                   </div>
                 ))}
 
-                {/* Add card */}
                 <button
                   onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
                   className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-5 hover:border-indigo-300 dark:hover:border-indigo-900 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all flex flex-col items-center justify-center gap-4 min-h-[160px] group"
@@ -457,6 +484,10 @@ export default function CategoriesPage() {
               />
             )}
           </div>
+        )}
+
+        {activeTab === 'tasks' && (
+          <TasksTab eventId={eventId} />
         )}
       </div>
 

@@ -125,7 +125,7 @@ export function GlobalExcelImportModal({ isOpen, onClose, onSuccess, groupId }) 
           ) : (
             <Button 
                disabled={step === 1 || mapping.name === -1} 
-               loading={isImporting} 
+               isLoading={isImporting} 
                onClick={startImport}
             >
               Start Import

@@ -17,7 +17,7 @@ const sizes = {
 export function Button({
   variant = 'primary',
   size = 'md',
-  loading = false,
+  isLoading = false,
   disabled = false,
   icon: Icon,
   children,
@@ -30,7 +30,7 @@ export function Button({
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled || loading}
+      disabled={disabled || isLoading}
       className={clsx(
         'inline-flex items-center justify-center gap-2 font-medium rounded-lg',
         'focus:outline-none focus:ring-2 focus:ring-offset-1',
@@ -43,8 +43,8 @@ export function Button({
       )}
       {...props}
     >
-      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : Icon && <Icon className="w-4 h-4" />}
-      {loading ? 'Loading...' : children}
+      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : Icon && <Icon className="w-4 h-4" />}
+      {isLoading ? 'Loading...' : children}
     </button>
   );
 }

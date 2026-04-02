@@ -107,7 +107,7 @@ export function PersonModal({ isOpen, onClose, onSuccess, person, categoryId, ev
       footer={
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} loading={isSubmitting} disabled={person?.isLocked}>{person ? 'Save Changes' : 'Add Guest'}</Button>
+          <Button onClick={handleSubmit} isLoading={isSubmitting} disabled={person?.isLocked}>{person ? 'Save Changes' : 'Add Guest'}</Button>
         </div>
       }
     >

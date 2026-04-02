@@ -117,7 +117,7 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, eventId })
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} loading={isSubmitting}>{category ? 'Save Changes' : 'Create Category'}</Button>
+          <Button onClick={handleSubmit} isLoading={isSubmitting}>{category ? 'Save Changes' : 'Create Category'}</Button>
         </>
       }
     >

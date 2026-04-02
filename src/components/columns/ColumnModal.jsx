@@ -69,7 +69,7 @@ export function ColumnModal({ isOpen, onClose, onSuccess, column, eventId, nextO
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} loading={isSubmitting}>{column ? 'Save Changes' : 'Add Column'}</Button>
+          <Button onClick={handleSubmit} isLoading={isSubmitting}>{column ? 'Save Changes' : 'Add Column'}</Button>
         </>
       }
     >

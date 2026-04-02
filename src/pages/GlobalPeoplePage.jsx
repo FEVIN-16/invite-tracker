@@ -57,7 +57,7 @@ function GroupModal({ isOpen, onClose, onSuccess, group }) {
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} loading={saving}>{group ? 'Save' : 'Create Group'}</Button>
+          <Button onClick={handleSave} isLoading={saving}>{group ? 'Save' : 'Create Group'}</Button>
         </>
       }
     >

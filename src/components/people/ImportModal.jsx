@@ -96,7 +96,7 @@ export function ImportModal({ isOpen, onClose, onSuccess, eventId, categoryId, c
           ) : (
             <Button 
                disabled={step === 1 || mapping.name === -1} 
-               loading={isImporting} 
+               isLoading={isImporting} 
                onClick={startImport}
             >
               Start Import

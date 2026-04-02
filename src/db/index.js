@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'inviteTrackerDB';
-const DB_VERSION = 4;
+const DB_VERSION = 6;
 
 export const initDB = () =>
   openDB(DB_NAME, DB_VERSION, {
@@ -29,6 +29,18 @@ export const initDB = () =>
         const peopleStore = db.createObjectStore('people', { keyPath: 'id' });
         peopleStore.createIndex('categoryId', 'categoryId', { unique: false });
         peopleStore.createIndex('eventId', 'eventId', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains('taskGroups')) {
+        const tgStore = db.createObjectStore('taskGroups', { keyPath: 'id' });
+        tgStore.createIndex('eventId', 'eventId', { unique: false });
+        tgStore.createIndex('userId', 'userId', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains('tasks')) {
+        const tStore = db.createObjectStore('tasks', { keyPath: 'id' });
+        tStore.createIndex('groupId', 'groupId', { unique: false });
+        tStore.createIndex('eventId', 'eventId', { unique: false });
       }
 
       // Dedicated stores for the global People section (contact book)

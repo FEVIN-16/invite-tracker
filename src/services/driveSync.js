@@ -54,6 +54,11 @@ export const driveSync = {
         headers: { Authorization: `Bearer ${accessToken}` }
       }
     );
+    
+    if (!res.ok) {
+      throw new Error(`Drive API error: ${res.statusText} (${res.status})`);
+    }
+
     const data = await res.json();
     return data.files && data.files.length > 0 ? data.files[0] : null;
   },
@@ -67,8 +72,6 @@ export const driveSync = {
     
     const metadata = {
       name: BACKUP_FILENAME,
-      // parents field cannot be updated via PATCH in Drive API v3.
-      // Only include it for new file creation (POST).
       ...(existingFile ? {} : { parents: ['appDataFolder'] })
     };
 
@@ -103,7 +106,7 @@ export const driveSync = {
     });
 
     if (!response.ok) {
-      throw new Error('Drive push failed: ' + response.statusText);
+      throw new Error(`Drive push failed: ${response.statusText} (${response.status})`);
     }
 
     return await response.json();
@@ -121,7 +124,7 @@ export const driveSync = {
     });
 
     if (!res.ok) {
-      throw new Error('Drive pull failed: ' + res.statusText);
+      throw new Error(`Drive pull failed: ${res.statusText} (${res.status})`);
     }
 
     return await res.json();

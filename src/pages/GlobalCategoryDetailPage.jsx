@@ -165,7 +165,7 @@ function ContactModal({ isOpen, onClose, onSuccess, contact, groupId }) {
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} loading={saving}>{contact ? 'Save Changes' : 'Add Contact'}</Button>
+          <Button onClick={handleSave} isLoading={saving}>{contact ? 'Save Changes' : 'Add Contact'}</Button>
         </>
       }
     >

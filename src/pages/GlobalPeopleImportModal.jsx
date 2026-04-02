@@ -130,7 +130,7 @@ export function GlobalPeopleImportModal({ isOpen, onClose, onSuccess, eventId, c
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
           <Button 
             onClick={handleImport} 
-            loading={isImporting} 
+            isLoading={isImporting} 
             disabled={selectedContactIds.length === 0}
           >
             Import {selectedContactIds.length > 0 ? `(${selectedContactIds.length})` : ''}

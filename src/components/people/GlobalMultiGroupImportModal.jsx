@@ -214,7 +214,7 @@ export function GlobalMultiGroupImportModal({ isOpen, onClose, onSuccess }) {
                   (step === 2 && mapping.name === -1) ||
                   (step === 3 && !isAssignmentValid)
                 } 
-                loading={isImporting} 
+                isLoading={isImporting} 
                 onClick={step === 2 ? handleMapNext : (step === 3 ? startImport : undefined)}
               >
                 {step === 3 ? 'Confirm Import' : 'Next'}

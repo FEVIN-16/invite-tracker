@@ -120,7 +120,7 @@ export default function EditEventPage() {
 
           <div className="flex gap-4 pt-4">
             <Button variant="secondary" className="flex-1" onClick={() => navigate('/events')}>Cancel</Button>
-            <Button type="submit" loading={isSubmitting} className="flex-1">Save Changes</Button>
+            <Button type="submit" isLoading={isSubmitting} className="flex-1">Save Changes</Button>
           </div>
         </form>
       </div>
