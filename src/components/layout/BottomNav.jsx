@@ -1,8 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, MoreHorizontal, LogOut, CalendarHeart, Users } from 'lucide-react';
+import { Home, MoreHorizontal, LogOut, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { googleAuth } from '../../services/googleAuth';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { SyncStatusBadge } from '../ui/SyncStatusBadge';
 import clsx from 'clsx';
 
 export function BottomNav() {
@@ -15,6 +17,12 @@ export function BottomNav() {
     { to: '/people', icon: Users, label: 'People' },
     { to: '/events', icon: Home, label: 'My Events' },
   ];
+
+  const handleSignOut = () => {
+    googleAuth.signOut();
+    clearUser();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -49,11 +57,28 @@ export function BottomNav() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
           <div className="relative w-full bg-white dark:bg-gray-900 rounded-t-2xl p-6 shadow-2xl border-t border-gray-100 dark:border-gray-800" onClick={e => e.stopPropagation()}>
             <div className="w-10 h-1 bg-gray-200 dark:bg-gray-800 rounded mx-auto mb-6" />
-            <div className="mb-6">
-              <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Signed in as</p>
-              <p className="font-black text-gray-900 dark:text-white text-lg">{user?.displayName}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">@{user?.username}</p>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500/20 shadow-sm relative shrink-0">
+                {user?.picture ? (
+                  <img src={user.picture} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-black uppercase text-sm">
+                    {user?.name?.charAt(0) || 'U'}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Signed in as</p>
+                <p className="font-black text-gray-900 dark:text-white text-lg truncate leading-tight">{user?.name}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 font-medium truncate">{user?.email}</p>
+              </div>
             </div>
+
+            <div className="mb-6 p-1 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+              <SyncStatusBadge collapsed={false} />
+            </div>
+
             <button
               className="w-full text-left font-black text-sm text-red-500 dark:text-red-400 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3 transition-colors hover:text-red-600 dark:hover:text-red-300"
               onClick={() => { setShowMore(false); setShowSignOut(true); }}
@@ -70,9 +95,9 @@ export function BottomNav() {
       <ConfirmDialog
         isOpen={showSignOut}
         onClose={() => setShowSignOut(false)}
-        onConfirm={() => { clearUser(); navigate('/login'); }}
+        onConfirm={handleSignOut}
         title="Sign Out"
-        message="Sign out? Your data will remain on this device."
+        message="Sign out from Google? Your data will remain on this device."
         confirmLabel="Sign Out"
       />
     </>
