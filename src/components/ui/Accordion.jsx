@@ -6,10 +6,13 @@ export function Accordion({ title, children, icon: Icon, defaultOpen = false, co
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm transition-all hover:border-indigo-100 dark:hover:border-indigo-900">
+    <div className={clsx(
+      "bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:border-indigo-100 dark:hover:border-indigo-900",
+      isOpen ? "overflow-visible" : "overflow-hidden"
+    )}>
       <div className={clsx(
-        "w-full flex items-center justify-between p-4 md:p-5 transition-colors text-left",
-        isOpen ? "bg-indigo-50/30 dark:bg-indigo-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+        "w-full flex items-center justify-between p-4 md:p-5 transition-colors text-left rounded-t-xl",
+        isOpen ? "bg-indigo-50/30 dark:bg-indigo-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl"
       )}>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -57,7 +60,7 @@ export function Accordion({ title, children, icon: Icon, defaultOpen = false, co
           isOpen ? "opacity-100 visible h-auto" : "opacity-0 invisible h-0 overflow-hidden"
         )}
       >
-        <div className="p-4 md:p-6 border-t border-gray-50 dark:border-gray-800">
+        <div className="p-4 md:p-6 border-t border-gray-50 dark:border-gray-800 rounded-b-xl">
           {children}
         </div>
       </div>

@@ -16,7 +16,8 @@ export async function addTaskGroup(group) {
     ...group, 
     order: maxOrder + 1,
     isOrderLocked: false,
-    isCompletionLocked: false
+    isCompletionLocked: false,
+    showTaskActions: false
   };
   
   await db.add('taskGroups', newGroup);

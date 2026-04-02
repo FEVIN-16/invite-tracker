@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'inviteTrackerDB';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 export const initDB = () =>
   openDB(DB_NAME, DB_VERSION, {
