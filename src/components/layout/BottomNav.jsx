@@ -1,21 +1,24 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { Home, MoreHorizontal, LogOut, Users } from 'lucide-react';
+import { Home, MoreHorizontal, LogOut, Users, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { googleAuth } from '../../services/googleAuth';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { SyncStatusBadge } from '../ui/SyncStatusBadge';
+import { NavDropdown } from './NavDropdown';
 import clsx from 'clsx';
 
 export function BottomNav() {
   const navigate = useNavigate();
   const { clearUser, user } = useAuthStore();
+  const location = useLocation();
   const [showSignOut, setShowSignOut] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'people' | 'events' | null
 
   const tabs = [
-    { to: '/people', icon: Users, label: 'People' },
-    { to: '/events', icon: Home, label: 'My Events' },
+    { id: 'people', to: '/people', icon: Users, label: 'People' },
+    { id: 'events', to: '/events', icon: Home, label: 'My Events' },
   ];
 
   const handleSignOut = () => {
@@ -27,22 +30,45 @@ export function BottomNav() {
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex z-40 md:hidden transition-colors">
-        {tabs.map(tab => (
-          <NavLink
-            key={tab.label}
-            to={tab.to}
-            end
-            className={({ isActive }) =>
-              clsx(
-                'flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-xs font-bold transition-colors',
-                isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-              )
-            }
-          >
-            <tab.icon className="w-5 h-5" />
-            <span>{tab.label}</span>
-          </NavLink>
-        ))}
+        {tabs.map(tab => {
+          const isActive = location.pathname.startsWith(tab.to);
+          const isOpen = openDropdown === tab.id;
+
+          return (
+            <div 
+              key={tab.id}
+              className={clsx(
+                'flex-1 flex items-stretch transition-colors relative',
+                isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'
+              )}
+            >
+              <NavLink
+                to={tab.to}
+                className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-[10px] font-black uppercase tracking-widest"
+              >
+                <tab.icon className="w-5 h-5" />
+                <span className="truncate max-w-[60px]">{tab.label}</span>
+              </NavLink>
+              
+              <button
+                onClick={() => setOpenDropdown(isOpen ? null : tab.id)}
+                className={clsx(
+                  "px-2 flex items-center justify-center border-l border-gray-100 dark:border-gray-800/50 transition-colors",
+                  isOpen ? "bg-indigo-50 dark:bg-indigo-900/20" : ""
+                )}
+              >
+                <ChevronDown className={clsx(
+                  "w-4 h-4 transition-transform duration-300",
+                  isOpen ? "rotate-180" : "rotate-0"
+                )} />
+              </button>
+
+              {(isActive) && (
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-b-full" />
+              )}
+            </div>
+          );
+        })}
         <button
           onClick={() => setShowMore(true)}
           className="flex-1 flex flex-col items-center justify-center py-3 gap-0.5 text-xs font-bold text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
@@ -91,6 +117,24 @@ export function BottomNav() {
           </div>
         </div>
       )}
+
+      <NavDropdown 
+        type="people"
+        isOpen={openDropdown === 'people'}
+        onClose={() => setOpenDropdown(null)}
+        userId={user?.id}
+        title="People Groups"
+        placement="bottom-sheet"
+      />
+
+      <NavDropdown 
+        type="events"
+        isOpen={openDropdown === 'events'}
+        onClose={() => setOpenDropdown(null)}
+        userId={user?.id}
+        title="Event Dashboards"
+        placement="bottom-sheet"
+      />
 
       <ConfirmDialog
         isOpen={showSignOut}

@@ -1,23 +1,28 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { Home, CalendarHeart, LogOut, Users, ChevronLeft, ChevronRight, Cloud, Moon, Sun } from 'lucide-react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useRef } from 'react';
+import { Home, CalendarHeart, LogOut, Users, ChevronLeft, ChevronRight, Cloud, Moon, Sun, ChevronDown } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { googleAuth } from '../../services/googleAuth';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { SyncStatusBadge } from '../ui/SyncStatusBadge';
 import { Tooltip } from '../ui/Tooltip';
+import { NavDropdown } from './NavDropdown';
 import clsx from 'clsx';
 
 export function Sidebar() {
   const navigate = useNavigate();
   const { user, clearUser } = useAuthStore();
   const { theme, toggleTheme, isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const location = useLocation();
   const [showSignOut, setShowSignOut] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'people' | 'events' | null
+  const peopleRef = useRef(null);
+  const eventsRef = useRef(null);
 
   const navLinks = [
-    { to: '/people', icon: Users, label: 'People' },
-    { to: '/events', icon: Home, label: 'My Events' },
+    { id: 'people', to: '/people', icon: Users, label: 'People', ref: peopleRef },
+    { id: 'events', to: '/events', icon: Home, label: 'My Events', ref: eventsRef },
   ];
 
   const handleSignOut = () => {
@@ -117,33 +122,94 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto overflow-x-hidden">
-        {navLinks.map(link => (
-          <Tooltip 
-            key={link.to} 
-            content={isSidebarCollapsed ? link.label : ''} 
-            position="right"
-            className="w-full"
-          >
-            <NavLink
-              to={link.to}
-              className={({ isActive }) =>
-                clsx(
-                  'flex items-center rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-200 overflow-hidden w-full',
-                  isSidebarCollapsed ? "justify-center p-3" : "gap-3 px-4 py-3",
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
-                )
-              }
-            >
-              <link.icon className={clsx("flex-shrink-0 transition-all", isSidebarCollapsed ? "w-5 h-5" : "w-4 h-4")} />
-              {!isSidebarCollapsed && (
-                <span className="truncate transition-opacity duration-300">{link.label}</span>
+        {navLinks.map(link => {
+          const isActive = location.pathname.startsWith(link.to);
+          const isOpen = openDropdown === link.id;
+
+          return (
+            <div 
+              key={link.id} 
+              className={clsx(
+                "flex items-center rounded-xl transition-all duration-200 overflow-hidden w-full relative group",
+                isActive
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400'
               )}
-            </NavLink>
-          </Tooltip>
-        ))}
+            >
+              <Tooltip 
+                content={isSidebarCollapsed ? link.label : ''} 
+                position="right"
+                className="flex-1"
+              >
+                <NavLink
+                  to={link.to}
+                  className={clsx(
+                    'flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-all duration-200 flex-1',
+                    isSidebarCollapsed ? "justify-center p-3" : "px-4 py-3",
+                  )}
+                >
+                  <link.icon className={clsx("flex-shrink-0 transition-all", isSidebarCollapsed ? "w-5 h-5" : "w-4 h-4")} />
+                  {!isSidebarCollapsed && (
+                    <span className="flex-1 text-left truncate transition-opacity duration-300">{link.label}</span>
+                  )}
+                </NavLink>
+              </Tooltip>
+
+              {!isSidebarCollapsed && (
+                <button
+                  ref={link.ref}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpenDropdown(isOpen ? null : link.id);
+                  }}
+                  className={clsx(
+                    "p-3 hover:bg-white/10 dark:hover:bg-white/5 transition-colors border-l border-white/10",
+                    isOpen ? "bg-white/10" : ""
+                  )}
+                >
+                  <ChevronDown className={clsx(
+                    "w-3.5 h-3.5 transition-transform duration-300 opacity-60 group-hover:opacity-100",
+                    isOpen ? "rotate-180" : "rotate-0"
+                  )} />
+                </button>
+              )}
+
+              {isSidebarCollapsed && (
+                <button
+                  ref={link.ref}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setOpenDropdown(isOpen ? null : link.id);
+                  }}
+                  className="absolute inset-y-0 right-0 w-2 hover:bg-white/10 transition-colors"
+                />
+              )}
+
+              {(isActive) && (
+                <div className="absolute left-0 top-2 bottom-2 w-1 bg-white rounded-r-full" />
+              )}
+            </div>
+          );
+        })}
       </nav>
+
+      <NavDropdown 
+        type="people"
+        isOpen={openDropdown === 'people'}
+        onClose={() => setOpenDropdown(null)}
+        anchorRef={peopleRef}
+        userId={user?.id}
+        title="People Groups"
+      />
+
+      <NavDropdown 
+        type="events"
+        isOpen={openDropdown === 'events'}
+        onClose={() => setOpenDropdown(null)}
+        anchorRef={eventsRef}
+        userId={user?.id}
+        title="Event Dashboards"
+      />
 
       <div className={clsx(
         "py-4 border-t border-gray-100 dark:border-gray-800 transition-all flex flex-col items-center gap-2",

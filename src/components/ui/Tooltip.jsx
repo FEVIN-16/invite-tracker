@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 
-export function Tooltip({ children, content, position = 'top', delay = 0 }) {
+export function Tooltip({ children, content, position = 'top', delay = 0, className }) {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
@@ -63,7 +63,7 @@ export function Tooltip({ children, content, position = 'top', delay = 0 }) {
     <>
       <div 
         ref={triggerRef}
-        className="inline-flex items-center"
+        className={clsx("inline-flex items-center", className)}
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
       >
