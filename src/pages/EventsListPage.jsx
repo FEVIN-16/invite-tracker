@@ -40,25 +40,31 @@ export default function EventsListPage() {
   );
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto transition-colors">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div className="p-4 md:px-8 md:py-6 max-w-7xl mx-auto transition-colors">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 transition-colors">
         <div>
           <h1 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">My Events</h1>
-          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Manage all your invitation lists</p>
+          <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest leading-tight">Manage all your invitation lists</p>
         </div>
-        <Link to="/events/new">
-          <Button icon={Plus} className="w-full md:w-auto">Create New Event</Button>
-        </Link>
+        <div className="flex gap-2 w-full md:w-auto">
+          <Link to="/events/new" className="flex-1 md:flex-none">
+            <Button 
+              size="sm" 
+              icon={Plus} 
+              className="w-full justify-center h-9 md:h-10 text-[10px] md:text-xs shadow-lg shadow-indigo-500/20"
+            >
+              Create New Event
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="mb-6 relative group">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
-          <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-        </div>
+      <div className="relative mb-8 max-w-sm group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
         <input
           type="text"
           placeholder="Search events..."
-          className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all dark:text-white dark:placeholder:text-gray-600 shadow-sm"
+          className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl text-xs font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all shadow-sm group-hover:shadow-md dark:placeholder:text-gray-700"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

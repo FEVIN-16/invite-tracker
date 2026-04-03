@@ -8,19 +8,19 @@ import { StatCard } from '../dashboard/StatCard';
 import { StatusChart } from '../dashboard/StatusChart';
 import { Accordion } from '../ui/Accordion';
 
-export function CategoryDashboardTab({ categoryId }) {
+export function CategoryDashboardTab({ categoryId, category }) {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [people, columns, category] = await Promise.all([
+        const [people, columns, dbCat] = await Promise.all([
           getPeopleByCategory(categoryId),
           getColumnsByCategory(categoryId),
           getCategoryById(categoryId)
         ]);
-
+        
         // Find RSVP / Status select columns
         const statusCols = columns.filter(c =>
           c.type === 'select' &&
@@ -99,13 +99,58 @@ export function CategoryDashboardTab({ categoryId }) {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 pb-24">
+    <div className="space-y-8">
+      {/* Tab Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Category Dashboard</h2>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">
+            Overview and statistics for {category?.name}
+          </p>
+        </div>
+      </div>
+
       {/* Primary stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total People" value={stats.total} icon={Users} color="indigo" />
-        <StatCard title="Confirmed" value={stats.confirmedCount} icon={CheckCircle} color="emerald" />
-        <StatCard title="Pending" value={stats.pendingCount} icon={Clock} color="amber" />
-        <StatCard title="Fields Configured" value={stats.totalColumns} icon={BarChart2} color="blue" />
+      <div className="flex flex-wrap gap-4">
+        <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.total}</p>
+            <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Total People</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <CheckCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.confirmedCount}</p>
+            <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Confirmed</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.pendingCount}</p>
+            <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Pending</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <BarChart2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.totalColumns}</p>
+            <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Fields</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

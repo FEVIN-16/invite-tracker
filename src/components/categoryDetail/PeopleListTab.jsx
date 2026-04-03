@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Search, Plus, Upload, Download, Trash2, Users } from 'lucide-react';
+import { Search, Plus, Upload, Download, Trash2, Users, ChevronDown, ChevronUp } from 'lucide-react';
 import { getPeopleByCategory, bulkDeletePeople, updatePerson } from '../../db/peopleDb';
 import { getColumnsByCategory, updateColumn, createColumn } from '../../db/columnsDb';
 import { getEventById } from '../../db/eventsDb';
@@ -20,15 +20,16 @@ import { exportToExcel } from '../../utils/excel';
 import { Badge } from '../ui/Badge';
 import clsx from 'clsx';
 
-export function PeopleListTab({ eventId, categoryId }) {
-  const { addToast, isToolbarVisible } = useUIStore();
+export function PeopleListTab({ eventId, categoryId, category: initialCategory }) {
+  const { addToast } = useUIStore();
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
   const [people, setPeople] = useState([]);
   const [columns, setColumns] = useState([]);
   const [nameWidth, setNameWidth] = useState(180);
   const [isNameFrozen, setIsNameFrozen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [event, setEvent] = useState(null);
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState(initialCategory);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({});
@@ -297,65 +298,80 @@ export function PeopleListTab({ eventId, categoryId }) {
   if (isLoading) return <div className="flex justify-center py-24"><Spinner size="lg" /></div>;
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-950 transition-colors">
-      {/* Toolbar & Toggle Group */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 shadow-sm dark:shadow-none">
-        {/* Toolbar Content */}
-        <div className={clsx(
-          "transition-all duration-300 overflow-visible",
-          isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
-        )}>
-          <div className="px-4 md:px-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-              {selectedIds.length > 0 && (
-                <Tooltip content="Delete Selected">
-                  <Button
-                    variant="danger"
-                    icon={Trash2}
-                    size="sm"
-                    onClick={() => setShowBulkDelete(true)}
-                  >
-                    <span className="hidden sm:inline">Delete ({selectedIds.length})</span>
-                    <span className="sm:hidden">{selectedIds.length}</span>
-                  </Button>
-                </Tooltip>
-              )}
-              <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 group-focus-within:text-indigo-500 transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Search guests..."
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-transparent dark:border-gray-800 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-gray-800 outline-none transition-all font-bold placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
-            </div>
+    <div className="flex flex-col">
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite List</h2>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest leading-none">
+            {people.length} people total
+          </p>
+        </div>
+        <button
+          onClick={() => setIsToolbarVisible(!isToolbarVisible)}
+          className={clsx(
+            'flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all font-black text-[10px] uppercase tracking-widest shadow-sm h-9',
+            isToolbarVisible
+              ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+              : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+          )}
+        >
+          <span>Toolbar</span>
+          {isToolbarVisible ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+      </div>
 
-            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              <Tooltip content="Import from People" position="bottom">
-                <Button variant="secondary" size="sm" icon={Users} onClick={() => setIsGlobalImportModalOpen(true)}>
-                  <span className="hidden lg:inline text-xs">Import from People</span>
-                </Button>
-              </Tooltip>
-              <Tooltip content="Import CSV" position="bottom">
-                <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)}>
-                  <span className="hidden lg:inline text-xs">Import CSV</span>
-                </Button>
-              </Tooltip>
-              <Tooltip content="Export to Excel" position="bottom">
-                <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0}>
-                  <span className="hidden lg:inline text-xs">Export</span>
-                </Button>
-              </Tooltip>
-
-              <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }}>
-
-
-                <span className="hidden sm:inline">Add Person</span>
+      {/* Search and Filters Toolbar */}
+      <div className={clsx(
+        "transition-all duration-300 overflow-hidden",
+        isToolbarVisible ? "opacity-100 mb-8 max-h-[500px]" : "max-h-0 opacity-0 pointer-events-none"
+      )}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-[200px]">
+            {selectedIds.length > 0 && (
+              <Button
+                variant="danger"
+                icon={Trash2}
+                size="sm"
+                onClick={() => setShowBulkDelete(true)}
+                className="h-10 text-[10px] md:text-xs px-4"
+              >
+                Delete ({selectedIds.length})
               </Button>
+            )}
+            <div className="relative max-w-sm w-full group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search guests..."
+                className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
+            <PeopleFilters columns={columns} filters={filters} setFilters={setFilters} people={people} />
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Tooltip content="Import from People" position="bottom">
+              <Button variant="secondary" size="sm" icon={Users} onClick={() => setIsGlobalImportModalOpen(true)} className="h-10 text-[10px] md:text-xs">
+                <span className="hidden lg:inline">Device</span>
+              </Button>
+            </Tooltip>
+            <Tooltip content="Import CSV" position="bottom">
+              <Button variant="secondary" size="sm" icon={Upload} onClick={() => setIsImportModalOpen(true)} className="h-10 text-[10px] md:text-xs">
+                <span className="hidden lg:inline">Import</span>
+              </Button>
+            </Tooltip>
+            <Tooltip content="Export to Excel" position="bottom">
+              <Button variant="secondary" size="sm" icon={Download} onClick={handleExport} disabled={filteredAndSortedPeople.length === 0} className="h-10 text-[10px] md:text-xs">
+                <span className="hidden lg:inline">Export</span>
+              </Button>
+            </Tooltip>
+
+            <Button size="sm" icon={Plus} onClick={() => { setEditingPerson(null); setIsPersonModalOpen(true); }} className="h-10 text-[10px] md:text-xs shadow-lg shadow-indigo-500/20">
+              <span>Add Person</span>
+            </Button>
           </div>
         </div>
       </div>

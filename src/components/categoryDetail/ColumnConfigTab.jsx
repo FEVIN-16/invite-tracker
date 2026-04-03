@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
-import { Plus, Settings2 } from 'lucide-react';
+import { Plus, Settings2, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { getColumnsByCategory, createColumn, updateColumn, deleteColumn } from '../../db/columnsDb';
@@ -12,9 +12,11 @@ import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
 import clsx from 'clsx';
 
-export function ColumnConfigTab({ eventId, categoryId }) {
+export function ColumnConfigTab({ eventId, categoryId, category }) {
   const { user } = useAuthStore();
-  const { addToast, isToolbarVisible } = useUIStore();
+  const { addToast } = useUIStore();
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [columns, setColumns] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -150,22 +152,66 @@ export function ColumnConfigTab({ eventId, categoryId }) {
     }
   }
 
+  const filteredColumns = columns.filter(col => 
+    col.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    col.fieldKey?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (isLoading) return <div className="flex justify-center py-12"><Spinner /></div>;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-white dark:bg-gray-950 transition-colors">
-      {/* Collapsible Toolbar */}
+    <div className="flex flex-col">
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Field Configuration</h2>
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest leading-none">
+            {columns.length} total fields
+          </p>
+        </div>
+        <button
+          onClick={() => setIsToolbarVisible(!isToolbarVisible)}
+          className={clsx(
+            'flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all font-black text-[10px] uppercase tracking-widest shadow-sm h-9',
+            isToolbarVisible
+              ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+              : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+          )}
+        >
+          <span>Toolbar</span>
+          {isToolbarVisible ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      {/* Action and Search Row */}
       <div className={clsx(
-        "border-b border-gray-100 dark:border-gray-900 bg-white dark:bg-gray-950 sticky top-0 z-50 transition-all duration-300 overflow-hidden shadow-sm dark:shadow-none",
-        isToolbarVisible ? "opacity-100 py-3" : "h-0 py-0 opacity-0 pointer-events-none"
+        "transition-all duration-300 overflow-hidden",
+        isToolbarVisible ? "opacity-100 mb-8 max-h-[500px]" : "max-h-0 opacity-0 pointer-events-none"
       )}>
-        <div className="px-4 md:px-6 flex items-center justify-end">
-          <Button icon={Plus} size="sm" onClick={() => { setEditingColumn(null); setShowModal(true); }}>Add Field</Button>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="relative max-w-sm w-full group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-indigo-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search fields..."
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button 
+            icon={Plus} 
+            size="sm" 
+            onClick={() => { setEditingColumn(null); setShowModal(true); }}
+            className="h-10 text-[10px] md:text-xs shadow-lg shadow-indigo-500/20"
+          >
+            Add Field
+          </Button>
         </div>
       </div>
 
       {/* Grid Area */}
-      <div className="flex-1 overflow-auto pb-24">
+      <div className="flex-1 overflow-auto">
         <table className="w-full border-collapse">
           <thead className="sticky top-0 z-40 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
             <tr>
@@ -177,12 +223,12 @@ export function ColumnConfigTab({ eventId, categoryId }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {columns.map((col, i) => (
+            {filteredColumns.map((col, i) => (
               <ColumnItem
                 key={col.id}
                 column={col}
                 isFirst={i === 0}
-                isLast={i === columns.length - 1}
+                isLast={i === filteredColumns.length - 1}
                 onMoveUp={() => moveColumn(col.id, 'up')}
                 onMoveDown={() => moveColumn(col.id, 'down')}
                 onEdit={c => { setEditingColumn(c); setShowModal(true); }}

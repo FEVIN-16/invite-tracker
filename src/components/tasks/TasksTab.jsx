@@ -227,8 +227,8 @@ export function TasksTab({ eventId }) {
   if (isLoading) return <div className="flex justify-center p-12"><Spinner /></div>;
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto w-full">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:px-8 md:py-8 max-w-7xl mx-auto w-full space-y-8">
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Task Groups</h2>
           <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">
@@ -236,12 +236,12 @@ export function TasksTab({ eventId }) {
           </p>
         </div>
         <Button
+          size="sm"
           icon={Plus}
           onClick={() => { setEditingGroup(null); setIsGroupModalOpen(true); }}
-          className="flex-shrink-0"
+          className="shrink-0 h-9 md:h-10 text-[10px] md:text-xs"
         >
-          <span className="hidden sm:inline">Add Task Group</span>
-          <span className="sm:hidden">Add Group</span>
+          <span className="font-bold">Add Group</span>
         </Button>
       </div>
 

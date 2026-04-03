@@ -193,41 +193,46 @@ export default function CategoriesPage() {
   return (
     <div className="flex flex-col h-full bg-gray-50/30 dark:bg-gray-950/20 transition-colors">
       <div className="bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900 px-4 md:px-8 py-5">
-        <button
-          onClick={() => navigate('/events')}
-          className="flex items-center gap-1.5 text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-5 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to My Events
-        </button>
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 dark:text-gray-600 mb-5 uppercase tracking-widest leading-none">
+          <button onClick={() => navigate('/events')} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Events</button>
+          <span className="text-gray-200 dark:text-gray-800">/</span>
+          <span className="text-gray-900 dark:text-white">{event.title}</span>
+        </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
             <button 
               onClick={() => navigate('/events')}
-              className="p-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-400 hover:text-indigo-600 transition-all shadow-sm hover:shadow-md"
+              className="p-2 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm hover:shadow-md shrink-0 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+              title="Back to Events"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="min-w-0">
-              <h1 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white truncate tracking-tight">{event.title}</h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">{event.location}</span>
+            
+            <div className="min-w-0 pr-4">
+              <h1 className="text-lg md:text-xl font-black text-gray-900 dark:text-white truncate tracking-tight flex items-center gap-2">
+                {event.title}
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                <span className="text-indigo-600 dark:text-indigo-400 truncate max-w-[120px] md:max-w-none">{event.location}</span>
                 {event.date && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-gray-200 dark:bg-gray-800" />
-                    <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest leading-none">{event.date}</span>
+                    <span className="truncate">{event.date}</span>
                   </>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
+
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 border-t md:border-t-0 border-gray-50 dark:border-gray-900 pt-3 md:pt-0">
             <Button 
               variant="secondary" 
               size="sm" 
               icon={Edit2} 
               onClick={() => navigate(`/events/${eventId}/edit`)}
-              className="flex-1 md:flex-none justify-center"
+              className="flex-1 md:flex-none justify-center h-9 md:h-10 text-[10px] md:text-xs"
             >
               <span className="font-bold">Edit</span>
             </Button>
@@ -235,16 +240,15 @@ export default function CategoriesPage() {
               <Button 
                 icon={Plus} 
                 onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
-                className="flex-1 md:flex-none justify-center shadow-lg shadow-indigo-500/20"
+                className="flex-1 md:flex-none justify-center shadow-lg shadow-indigo-500/20 h-9 md:h-10 text-[10px] md:text-xs"
               >
-                <span className="hidden sm:inline">Add Category</span>
-                <span className="sm:hidden">Add</span>
+                <span className="font-bold">Add Category</span>
               </Button>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-8 border-b border-gray-100 dark:border-gray-900 mt-8 relative overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
+        <div className="flex items-center gap-6 border-b border-gray-100 dark:border-gray-900 mt-5 relative overflow-x-auto no-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
           {TABS.map((tab, idx) => (
             <button
               key={tab.id}
@@ -288,30 +292,38 @@ export default function CategoriesPage() {
       {/* Tab Content */}
       <div className="flex-1 overflow-auto">
         {activeTab === 'dashboard' && (
-          <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6">
+          <div className="p-4 md:px-8 md:py-8 max-w-7xl mx-auto w-full space-y-8">
             {stats ? (
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-4 mt-5">
-                  <div className="bg-white dark:bg-gray-900 px-4 py-3 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Event Dashboard</h2>
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">Snapshot of your event progress</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
                     <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-lg font-black text-gray-900 dark:text-white tracking-tight">{stats.totalGuests}</p>
+                      <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.totalGuests}</p>
                       <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Total Guests</p>
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-gray-900 px-4 py-3 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <div className="bg-white dark:bg-gray-900 px-5 py-4 rounded-2xl flex items-center gap-4 border border-gray-100 dark:border-gray-800 shadow-sm transition-all hover:shadow-md">
                     <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                       <LayoutGrid className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-lg font-black text-gray-900 dark:text-white tracking-tight">{stats.categoryCount}</p>
+                      <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{stats.categoryCount}</p>
                       <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-0.5">Categories</p>
                     </div>
                   </div>
                 </div>
+                
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 space-y-4">
                     <Accordion title={stats.mainStatusLabel || 'Status Breakdown'} icon={CheckCircle} defaultOpen>
@@ -361,23 +373,25 @@ export default function CategoriesPage() {
         )}
 
         {activeTab === 'categories' && (
-          <div className="p-4 md:p-8 max-w-5xl mx-auto w-full">
-            <div className="flex items-center justify-between mb-8">
+          <div className="p-4 md:px-8 md:py-8 max-w-7xl mx-auto w-full space-y-8">
+            <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">Invite Categories</h2>
-                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">{enriched.length} categories · {enriched.reduce((s, c) => s + c.peopleCount, 0)} total people</p>
+                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-widest">
+                  {enriched.length} categories · {enriched.reduce((s, c) => s + c.peopleCount, 0)} total people
+                </p>
               </div>
             </div>
 
             {enriched.length > 0 && (
-              <div className="relative mb-8 max-w-sm group">
+              <div className="relative mb-6 max-w-sm group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-indigo-500" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search categories..."
-                  className="w-full pl-12 pr-4 py-3 text-sm border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:placeholder:text-gray-600 shadow-sm"
+                  className="w-full pl-11 pr-4 py-2.5 text-xs font-bold border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all dark:placeholder:text-gray-700 shadow-sm group-hover:shadow-md"
                 />
               </div>
             )}

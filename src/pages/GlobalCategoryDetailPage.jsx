@@ -391,50 +391,73 @@ export default function GlobalCategoryDetailPage() {
   return (
     <div className="flex flex-col h-full bg-white dark:bg-gray-950 overflow-hidden transition-colors">
       {/* Header */}
-      <div className="px-4 md:px-6 py-6 border-b border-gray-100 dark:border-gray-800">
+      <div className="px-4 md:px-8 py-5 border-b border-gray-100 dark:border-gray-800">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 dark:text-gray-600 mb-4 uppercase tracking-widest leading-none">
+        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 dark:text-gray-600 mb-5 uppercase tracking-widest leading-none">
           <button onClick={() => navigate('/people')} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">People</button>
           <span className="text-gray-200 dark:text-gray-800">/</span>
-          <span className="text-gray-800 dark:text-gray-200">{group?.name}</span>
+          <span className="text-gray-900 dark:text-white">{group?.name}</span>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={() => navigate('/people')}
-              className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm group"
+              className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm group shrink-0"
+              title="Back to People"
             >
-              <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             </button>
-            <div>
-              <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{group?.name}</h1>
-              <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mt-1">{contacts.length} Total contacts</p>
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight truncate">{group?.name}</h1>
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest mt-1 leading-tight">{contacts.length} Total contacts</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 border-t md:border-t-0 border-gray-50 dark:border-gray-900 pt-4 md:pt-0">
             {selectedIds.length > 0 && (
-              <Button variant="danger" icon={Trash2} onClick={() => setShowBulkDelete(true)}>
+              <Button 
+                variant="danger" 
+                size="sm" 
+                icon={Trash2} 
+                onClick={() => setShowBulkDelete(true)}
+                className="flex-1 md:flex-none justify-center h-9 md:h-10 text-[10px] md:text-xs"
+              >
                 Delete ({selectedIds.length})
               </Button>
             )}
             
-            {/* Device Contacts Import */}
             <Tooltip content={!('contacts' in navigator) ? "Device contacts require a Secure Context (HTTPS) and a supported mobile browser." : "Import from device contacts"} position="bottom">
-              <div className="flex">
+              <div className="flex flex-1 md:flex-none">
                 <Button 
                   variant="secondary" 
+                  size="sm"
                   icon={Smartphone} 
                   onClick={handleContactPicker}
                   disabled={!('contacts' in navigator)}
+                  className="w-full justify-center h-9 md:h-10 text-[10px] md:text-xs"
                 >
-                  <span className="hidden lg:inline text-xs">Device Contacts</span>
+                  <span className="lg:inline">Device</span>
                 </Button>
               </div>
             </Tooltip>
 
-            <Button variant="secondary" icon={Upload} onClick={() => setIsImportModalOpen(true)}>Import</Button>
-            <Button icon={Plus} onClick={() => { setEditingContact(null); setIsModalOpen(true); }}>Add Contact</Button>
+            <Button 
+              variant="secondary" 
+              size="sm"
+              icon={Upload} 
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex-1 md:flex-none justify-center h-9 md:h-10 text-[10px] md:text-xs"
+            >
+              Import
+            </Button>
+            <Button 
+              size="sm"
+              icon={Plus} 
+              onClick={() => { setEditingContact(null); setIsModalOpen(true); }}
+              className="flex-1 md:flex-none justify-center h-9 md:h-10 text-[10px] md:text-xs shadow-lg shadow-indigo-500/20"
+            >
+              Add Contact
+            </Button>
           </div>
         </div>
       </div>
